@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_mandate">
+    <t t-call="report.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-call="report.external_layout">
+                <div class="page">
+                    <div>
+                    	<span style="font-size: 18px;">User</span> : <span style="font-size: 16px;" t-esc="docs.salesperson_id.name"/>
+                    </div>
+
+                    <div class="row mt32 mb32">
+                        <div class="col-xs-4">
+                            <p>
+                                <t t-if="docs.date_from"><strong>Date from :</strong> <span t-esc="docs.date_from"/><br/></t>
+                                <t t-if="docs.date_to"><strong>Date to :</strong> <span t-esc="docs.date_to"/></t>
+                            </p>
+                        </div>
+                    </div>
+
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                               <th>S/N</th>
+                                <th>Customer</th>
+                                <th><strong>Bank</strong></th>
+                                <th><strong>Account</strong></th>
+                                <th>Reference</th>
+                                <th>Journal</th>
+                                <th>QTY</th>
+                                <th>Amount</th>
+                               
+                            </tr>
+                        </thead>
+                        <tbody> 
+                            <tr t-foreach="orders" t-as="a">
+                                <td>
+                                    <span t-esc="a.id" />
+                                </td>
+                                <td>
+                                    <span t-esc="a.name.name" />
+                                </td>
+                                <td style="white-space: text-nowrap;">
+                                    <span t-esc="a.vendor_bank.name" />
+                                </td>
+                                <td style="white-space: text-nowrap;">
+                                    <span t-esc="a.vendor_account.acc_number" />
+                                </td>
+                                <td style="white-space: text-nowrap;">
+                                    <span t-esc="a.purchase_id.name" />
+                                </td>
+                                <td style="white-space: text-nowrap;">
+                                    <span t-esc="a.pay_account.name" />
+                                </td>
+                                <td style="white-space: text-nowrap;">
+                                    <span t-esc="a.product_qty" />
+                                </td>
+                                 
+                                <td style="white-space: text-nowrap;">
+                                    <span t-field="a.pay_amount" t-options='{"widget": "monetary", "display_currency": a.create_uid.company_id.currency_id}' />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+</odoo>

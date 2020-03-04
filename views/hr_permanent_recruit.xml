@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        
+        <record id="hr_permanent_recruit_form" model="ir.ui.view">
+            <field name="name">hr Permanent Recruitment</field>
+            <field name="model">hr.permanent_recruit</field>
+            <field name="arch" type="xml">
+                <form string="HR MANAGEMENT">
+                <header>
+                 
+                    <button name="hr_officer_approve" type="object" confirm="Are you ready to send to Confirm?" states="HR Officer1,Rejected" class="oe_highlight" string="Send to Manager" groups="hr.group_hr_manager,hr.group_hr_user"/>
+                    <button name="hr_manager_approve" type="object" states='HR manager1' string="Send to Assistant" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="hr_assistant_approve" type="object" states='HR Assistant' string="Send to Executive" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    
+                    <button name="executive_approve" type="object" states='Executive' string="Approve" class="oe_highlight" groups="ikoyi_module.executive_management_ikoyi,base.group_system"/>
+                    <!-- <button name="hrmanager2_approve" type="object" states='HR manager2' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/> -->
+                    <button name="hr_manager2_approve" type="object" states='HR manager2' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="create_employee" type="object" states='HR Officer2' string="Create Employee Record" class="oe_highlight" groups="hr.group_hr_user,hr.group_hr_manager,base.group_system"/>                    
+                   
+                    <field name="state" widget="statusbar" statusbar_visible="HR Officer1,HR Assistant,HR manager1"/>
+                </header>
+                <sheet>
+
+                <div class="oe_button_box">
+                        <!-- <button name="button_send_back"
+                            class="oe_stat_button"
+                            icon="fa-angle-double-left"
+                            type="object" string="Return Memo">
+                        </button> -->
+                        <div class="oe_button_box">
+                            <button name="action_get_attachment_view"
+                                class="oe_stat_button"
+                                icon="fa-book"
+                                type="object">
+                                <field name="attachment_number" widget="statinfo" string="View Attachments"/>
+                            </button>
+                        </div>
+                    </div>
+                <div class="oe_title">
+                        <label string="Name "/>
+                        <h1>
+                            <field name="name" readonly="0"/>
+                        </h1>
+                </div>
+
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="1" invisible="1"/>
+                            
+                            <field name="candidate_name" attrs="{'readonly':[('state','not in',['HR Officer1'])], 'required':[('state','in',['HR Officer1'])]}" invisible="0"/>
+                            
+                            <field name="department_id" string="Proposed Department" required="1" readonly="0" invisible="0"/>
+                            <field name="employee_id" string="Initiator" attrs="{'readonly':[('state','!=','HR Officer1')]}" options="{'no_create': True}"/>
+                            <field name="date_order" attrs="{'readonly':[('state','!=','HR Officer1')]}"/>
+                             
+                            <field name="users_followers" attrs="{'readonly':[('state','not in',['HR Officer1','HR Officer2','HR manager1', 'HR manager2'])]}" options="{'no_create': True}" widget="many2many_tags"/>
+                              
+                        </group>
+                        <group>
+
+                            <field name="file_upload_resumes_letter" filename="binary_fname" attrs="{'required':[('state','in',['HR Officer1'])]}"/>
+                            <field name="binary_fname" invisible="1"/>
+
+                            <field name="candidate_email" attrs="{'readonly':[('state','not in',['HR Officer1'])], 'required':[('state','in',['HR Officer1'])]}" invisible="0"/>
+                            <field name="phone" string="Candidate's Phone" required="0" readonly="0" invisible="0"/>
+                             
+
+                            <!-- <field name="file_upload_acceptance" filename="binaryaccept_fname" attrs="{'required':[('state','in',['HR Officer1'])]}"/>
+                            <field name="binaryaccept_fname" invisible="1" attrs="{'required':[('state','in',['HR Officer1'])]}"/> 
+                            <field name="file_upload_reject" filename="binaryreject_fname"/>
+                            <field name="binaryreject_fname" invisible="1"/>  -->
+                            <field name="emp_type" string="Type" readonly="1" invisible="0"/>
+                            <field name="status" string="Employment Status" attrs="{'required':[('state','in',['Executive'])]}" invisible="0"/> 
+   
+                        </group>
+                            <div class="oe_title">
+                                <label string="Notes"/>
+                                    <h1>
+                                        <field name="notes" string ="Note" Placeholder="Add note..."/>
+                                    </h1>
+                                </div>
+                        </group>
+
+                    <notebook>
+
+                        <page string = "Refusal Message">
+                            <field name="description_two" readonly="0"/>
+                           
+                        </page>
+
+                      </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="hr_recruit_permanent_tree_view" model="ir.ui.view">
+            <field name="name">hr.permanent_recruit.tree</field>
+            <field name="model">hr.permanent_recruit</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='Rejected'" decoration-info="state in ('HR Officer1')" string="HR Recruitment Process">
+                        <field name="name"/>
+                        <field name="employee_id" string="Initiator"/>
+                        <field name="candidate_name"/>
+                        <field name="date_order"/>
+                        <field name="status" string="Employment Status"/> 
+                        <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="hr_permanent_recruit_search_view" model="ir.ui.view">
+           <field name="name">hr.permanent_recruit.search</field>
+           <field name="model">hr.permanent_recruit</field>
+           <field name="arch" type="xml">
+               <search string="Recruitment Process">
+                    <field name="candidate_name" filter_domain="[('candidate_name','ilike',self)]" string="Candidate Name"/>
+                    <field name="date_order"/>
+                     
+                    <filter string="HR Officer1" domain="[('state','=','HR Officer1')]" help="HR Officer"/>
+                    <filter string="To Approve" domain="[('state','in',['HR manager1','HR manager2'])]" help="Manager To Approve" />
+                    <filter string="Executive To Approve" domain="[('state','in',['Executive'])]" help="Executive management team To Approve" />
+                    <!-- <filter string="Accepted" domain="[('state','=','Accepted')]" help="Candidate Accepted"/>
+                    <filter string="Rejected" domain="[('state','=','Rejected')]" help="Candidate Rejected"/> -->
+                    <field name="status"/>
+                    <field name="state"/>
+
+                </search>
+            </field>
+        </record>
+
+        <record id="human_permanent_recruit_action" model="ir.actions.act_window">
+            <field name="name">HR Permanent Recruit </field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.permanent_recruit</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to create.
+              </p>
+            </field>
+        </record>
+
+        <!-- <record id="hr_interns_action" model="ir.actions.act_window">
+            <field name="name">Interns Recruitment</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.offer.management</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">"{'default_state':'Waiting', 'default_emp_type':'Intern'}"</field>
+            
+            <field name="search_view_id" eval="False"/> 
+            <field name="view_id" eval="False"/> 
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to create.
+              </p>
+            </field>
+        </record> -->
+
+        <menuitem
+            id="hr_recruitment_process_menu"
+            name="HR Permanent Recruitment"
+            parent="ikoyi_module.hr_plan_id"
+            action="human_permanent_recruit_action"
+            sequence="9"/>
+ 
+    </data>
+</odoo>

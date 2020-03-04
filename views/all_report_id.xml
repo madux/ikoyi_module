@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report 
+            id="action_report_mandate"
+            model="report.ikoyi_Module.report_mandate"
+            string="Mandate report"
+            report_type="qweb-pdf"
+            name="ikoyi_module.report_mandate"
+            file="ikoyi_module.report_mandate"
+            menu="True"
+            />
+    </data>
+</odoo>

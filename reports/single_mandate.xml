@@ -1,0 +1,219 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <!-- Report Action -->
+        <report id="print_single_mandate_report"
+            string="Mandate"
+            model="payment.mandate.ikoyi"
+            report_type="qweb-pdf"
+            name="ikoyi_module.print_singlemandate_template"
+            file="ikoyi_module.print_singlemandate_template"
+            menu="True"
+            />
+
+        <report id="print_single_requisition_report"
+            string="Requisition"
+            model="payment.schedule.ikoyi"
+            report_type="qweb-pdf"
+            name="ikoyi_module.print_singlerequisition_template"
+            file="ikoyi_module.print_singlerequisition_template"
+            menu="True"
+            />
+
+        <!-- Allocation Offer Letter Template print_singlerequisition_template-->
+        <template id="print_singlemandate_template">
+            <t t-call="report.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="report.external_layout">
+                        <div class="page">
+
+                            <div class="row">
+                                <h2>
+                                    <span>
+                                        <center><u>IKOYI CLUB 1938</u></center>
+                                    </span>
+                                </h2>
+                            </div>
+                            <div class="row">
+                                <center> 
+                                    <div class="watermark;col-xs-8" styles="position:absolute;opacity:0.8; font-size:50px;width:200%;z-index">
+                                        <img src="/ikoyi_module/static/img/ikoyi_logo2.png" style="max-height:140px;max-width:100px;"/>
+                                     
+                                    </div>
+                                </center>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-3" style="font-size: 17px;">
+                                    <!--<strong>Ref No:<span t-field="o.name"/> </strong><br/>
+                                     <strong>GRN Number:<span t-field="o.stock_id.name"/> </strong><br/>-->
+                                      <strong>Date:<span t-raw="time.strftime('%Y-%m-%d')"/> </strong><br/>
+                                       <!--<strong>Store Location:<span t-field="o.location.name"/> </strong><br/>-->
+                                </div>
+                                <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                                   <strong></strong><br/>
+                                </div>
+                            </div><br/><br/>
+                           
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th><strong>S/N</strong></th>
+                                            <th><strong>Customer</strong></th>
+                                            <th><strong>Bank</strong></th>
+                                            <th><strong>Account</strong></th>
+                                            <th><strong>Reference</strong></th>
+                                            <th><strong>Journal</strong></th>
+                                            <th><strong>Amount</strong></th> 
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr> 
+                                        <!--<tr t-foreach="o" t-as="a">-->
+                                            <td>
+                                                <span t-esc="o.id" />
+                                            </td>
+                                            <td>
+                                                <span t-esc="o.name.name" />
+                                            </td>
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-esc="o.vendor_bank.name" />
+                                            </td>
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-esc="o.vendor_account.acc_number" />
+                                            </td>
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-esc="o.purchase_id.name" />
+                                            </td>
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-esc="o.pay_account.name" />
+                                            </td>
+                                            
+                                            
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-field="o.pay_amount" t-options='{"widget": "monetary", "display_currency": o.create_uid.company_id.currency_id}' />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table><p/><p/><p/>
+                                <div class="row">
+                                <div class="col-xs-3" style="font-size: 17px;">
+                                    <strong>Authorized Signatory:</strong><p/><p/>
+                                    <strong>.............................................</strong>
+
+                                </div>
+                                <!-- <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                                    <strong>Signature:................</strong><br/>
+                                    <strong>Ikoyi Club 1938</strong>
+
+                                </div> -->
+                                <!--<div class="col-xs-6 col-xs-offset-8" style="font-size: 17px;">
+                                    <strong>All Payments:</strong> <span t-field="o.all_payments"/><br/>
+                                    <strong>Outstanding:</strong> <span t-field="o.outstanding"/><br/>
+                                    <strong>Total:</strong> <span t-field="o.amount_total"/>
+                                </div>-->
+                                
+                            </div> 
+							</div>
+                            
+					</t>
+				</t>
+			</t>
+		</template>
+
+        <!-- Allocation Offer Letter Template -->
+        <template id="print_singlerequisition_template">
+            <t t-call="report.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="report.external_layout">
+                        <div class="page">
+
+                            <div class="row">
+                                <h2>
+                                    <span>
+                                        <center><u>IKOYI CLUB 1938</u></center>
+                                    </span>
+                                </h2>
+                            </div>
+                            <div class="row">
+                                <center> 
+                                    <div class="watermark;col-xs-8" styles="position:absolute;opacity:0.8; font-size:50px;width:200%;z-index">
+                                        <img src="/ikoyi_module/static/img/ikoyi_logo2.png" style="max-height:140px;max-width:100px;"/>
+                                     
+                                    </div>
+                                </center>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-3" style="font-size: 17px;">
+                                    <!--<strong>Ref No:<span t-field="o.name"/> </strong><br/>
+                                     <strong>GRN Number:<span t-field="o.stock_id.name"/> </strong><br/>-->
+                                      <strong>Date:<span t-raw="time.strftime('%Y-%m-%d')"/> </strong><br/>
+                                       <!--<strong>Store Location:<span t-field="o.location.name"/> </strong><br/>-->
+                                </div>
+                                <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                                   <strong></strong><br/>
+                                </div>
+                            </div><br/><br/>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th><strong>S/N</strong></th>
+                                            <th><strong>Customer</strong></th>
+                                            <th><strong>Bank</strong></th>
+                                            <th><strong>Account</strong></th>
+                                             
+                                            <th><strong>Amount</strong></th>
+                                        
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr> 
+                                        <!--<tr t-foreach="o" t-as="a">-->
+                                            <td>
+                                                <span t-esc="o.id" />
+                                            </td>
+                                            <td>
+                                                <span t-esc="o.name.name" />
+                                            </td>
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-esc="o.vendor_bank.name" />
+                                            </td>
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-esc="o.vendor_account.acc_number" />
+                                            </td>
+                                             
+                                            
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-field="o.pay_amount" t-options='{"widget": "monetary", "display_currency": o.create_uid.company_id.currency_id}' />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+							</div>
+                            <div class="row">
+                                <div class="col-xs-3" style="font-size: 17px;">
+                                    <strong>Signature:...................</strong><br/>
+                                    <strong>Vendor</strong>
+
+                                </div>
+                                <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                                    <strong>Signature:................</strong><br/>
+                                    <strong>Ikoyi Club 1938</strong>
+
+                                </div>
+                                <!--<div class="col-xs-6 col-xs-offset-8" style="font-size: 17px;">
+                                    <strong>All Payments:</strong> <span t-field="o.all_payments"/><br/>
+                                    <strong>Outstanding:</strong> <span t-field="o.outstanding"/><br/>
+                                    <strong>Total:</strong> <span t-field="o.amount_total"/>
+                                </div>-->
+                                
+                            </div>
+						 
+					</t>
+				</t>
+			</t>
+		</template>
+
+         
+	</data>
+</odoo>

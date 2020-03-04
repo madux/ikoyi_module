@@ -1,0 +1,1223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="mof_request_action" model="ir.actions.act_window">
+            <field name="name">MOF Request</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ik.material.request</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to Add a MOF.
+              </p>
+            </field>
+        </record>
+
+        <record id="fixed_asset_request_action" model="ir.actions.act_window">
+            <field name="name">Fixed Asset Request</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ik.fixed.request</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to Add a Fixed Asset.
+              </p>
+            </field>
+        </record>
+
+
+        <record id="ikoyimessage_action" model="ir.actions.act_window">
+            <field name="name">Refusal Message</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">send.back.ikoyi</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                .
+              </p>
+            </field>
+        </record>
+
+        <record id="ikoyigeneral_action" model="ir.actions.act_window">
+            <field name="name">Refusal Message</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">generalreturn.ikoyi</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                .
+              </p>
+            </field>
+        </record>
+
+        <record id="ikoyi_request_product_action" model="ir.actions.act_window">
+            <field name="name">Requests</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ikoyi.request</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                .
+              </p>
+            </field>
+        </record>
+
+
+        <record id="message_refuse_ikoyi_action" model="ir.actions.act_window">
+            <field name="name">Wizard Message Refusal</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ikoyirefuse.message</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                .
+              </p>
+            </field>
+        </record>
+   
+        <record model="ir.ui.view" id="purchase_inherit_ikoyi" >
+            <field name="name">purchase.order</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state']" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="officer,pm,draft,sent,purchase" readonly="1"/>
+                </xpath>
+                <xpath expr="//button[@id='bid_confirm']" position="before">
+                    <button name="button_request_approval_by_officer" type="object" states="officer" class="oe_highlight" string="Send to PM"
+                    groups="ikoyi_module.procurement_officer_ikoyi,purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"/>
+            </xpath>
+                <xpath expr="//button[@id='draft_confirm']" position="before">
+
+                    <button name="button_request_approval_by_pm" type="object" states="pm" class="oe_highlight" string="Generate Request"
+                    groups="purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"
+                    attrs="{'invisible':[('state', 'in',['officer','draft','sent','purchase','done']),('state_mode', 'not in', ['fixed'])]}"/>
+                    <button name="button_refuse" type="object" states='officer,pm' string="Reject" class="oe_highlight"
+                     groups="ikoyi_module.procurement_officer_ikoyi,purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"/>
+
+                    <button name="button_print_purchases" type="object" string="Print PO" class="oe_highlight"
+                     groups="ikoyi_module.procurement_officer_ikoyi,purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"/>
+
+                </xpath>
+
+               <xpath expr="//div//button[@name='action_view_picking']" position="replace">
+                    
+                    <button type="object" name="action_view_picking" class="oe_stat_button" icon="fa-truck" 
+                    attrs="{'invisible':[('state', 'in', ('draft','sent','to approve','purchase')),('picking_ids','=',[])]}"
+                    groups="base.group_system">
+                            <field name="picking_count" widget="statinfo" string="Shipment" help="Incoming Shipments"/>
+                            <field name="picking_ids" invisible="1"/>
+                        </button>
+
+                </xpath> 
+
+                <xpath expr="//div//button[@name='action_view_invoice']" position="attributes">
+                    <attribute name="groups">base.group_system</attribute>
+                     <attribute name="invisible">1</attribute>
+                    
+
+                </xpath> 
+
+                 
+                
+
+                <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="users_followers" widget= "many2many_tags" invisible="0"/>
+                </xpath>
+                <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="employee_id" readonly="1"/>
+                    <field name="acc_inv" readonly="1"/>
+                    <field name="set_value" invisible="1"/>
+                    <field name="state_mode" widget="radio" options="{'horizontal': true}"/>
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', 'not in', ('officer','pm','draft','cancel'))]}</attribute>
+
+                </xpath>
+
+                <xpath expr="//button[@id='draft_confirm']" position="attributes">
+                    <attribute name="groups">ikoyi_module.procurement_manager_ikoyi,purchase.group_purchase_manager</attribute>
+                </xpath>
+                <xpath expr="//button[@id='bid_confirm']" position="attributes">
+                    <attribute name="groups">ikoyi_module.procurement_manager_ikoyi,purchase.group_purchase_manager</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_approve']" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_done']" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_unlock']" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi</attribute>
+                </xpath> 
+                
+                    
+                
+               <xpath expr="//header//button[@name='action_view_picking']" position="replace">
+               <button name="action_view_picking" string="Receive Products" groups="base.group_system" class="oe_highlight" type="object" attrs="{'invisible': ['|', '|' , ('is_shipped', '=', True), ('state','not in', ('purchase','done')), ('picking_count', '=', 0)]}"/>
+               
+                    <!--<attribute name="attrs">{'invisible':[('state', 'in', ('draft','sent','to approve','purchase')),('picking_ids','=',[])]}</attribute>
+               --> </xpath>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="stock_pickinginherit_ikoyi" >
+            <field name="name">stock.picking</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='location_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': []}</attribute>
+                    <attribute name="attrs">{'readonly': [('state','not in', ['draft','assigned'])]}</attribute> 
+                </xpath>
+                <xpath expr="//field[@name='location_dest_id']" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                   <attribute name="attrs">{'invisible': []}</attribute> 
+                    <attribute name="attrs">{'readonly': [('state','not in', ['draft','assigned'])]}</attribute>
+                </xpath>
+                <xpath expr="//button[@name='do_print_picking']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                   <attribute name="attrs">{'invisible': []}</attribute>  
+                </xpath>
+                      
+                <!-- <xpath expr="//field[@name='location_dest_id']" position="attributes">
+                <attribute name="attrs">{'invisible': []}</attribute>
+                </xpath> -->
+                         
+                <xpath expr="//button[@name='do_new_transfer']" position="before">
+                    <!--<button name="first_approve" type="object" states="draft,partially_available,assigned" class="oe_highlight" string="Confirm to APO"
+                    groups="ikoyi_module.inventory_manager_ikoyi,stock.group_stock_manager"/>-->
+                     <button name="print_grn" type="object" states="done" class="oe_highlight" string="Print GRN"
+                    groups="ikoyi_module.inventory_manager_ikoyi,stock.group_stock_manager,stock.group_stock_user"/>
+ 
+            </xpath> 
+            <xpath expr="//button[@name='do_new_transfer']" position="replace">
+
+                <button name="do_new_transfer" states="partially_available,assigned" string="Validate" groups="stock.group_stock_user,ikoyi_module.inventory_manager_ikoyi,stock.group_stock_manager" type="object" class="oe_highlight"/>
+
+            </xpath>
+
+
+            <xpath expr="//field[@name='origin']" position="after">
+                    <field name="file_upload" filename="binary_fname"/>
+                    <field name="binary_fname" invisible="1"/>
+                    <!--<field name="attachment" widget = "many2many_tags" string ="Attachments"/>-->
+            </xpath>
+
+                    <!--<xpath expr="//field[@name='name']" position="before">
+                    <div class="oe_button_box">
+                            <button  class="oe_stat_button"
+                                    name="attachment_tree_view"
+                                    type="object" icon="fa-files-o">
+                                    <field string="Documents" name="doc_count" widget="statinfo"/>
+                            </button>
+                    </div> 
+                </xpath>-->
+
+
+
+            </field>
+        </record>
+
+
+
+
+        <record id="mof_request_ikoyi_formkk" model="ir.ui.view">
+            <field name="name">ik.material.request</field>
+            <field name="model">ik.material.request</field>
+            <field name="arch" type="xml">
+                <form string="Inventory MOF">
+                <header>
+                    <button name="button_store_to_manager" type="object" confirm="Are you ready to send to Manager?" states="draft,cancel" class="oe_highlight" string="Send to Manager" id="draft_m_confirm" groups="stock.group_stock_manager,stock.group_stock_user,ikoyi_module.inventory_manager_ikoyi,ikoyi_module.store_keeper_ikoyi"/>
+                    <button name="button_store_manager_approve" type="object" states="store_manager" confirm="Are you ready to send to Procurement?" class="oe_highlight" string="Inventory Manager Approve" id="ikoyi_approve_mat_button" groups="stock.group_stock_manager,ikoyi_module.inventory_manager_ikoyi"/>
+                    <button name="button_draft" type="object" states='cancel,refuse' string="Set to Draft" class="oe_highlight" groups="stock.group_stock_manager,stock.group_stock_user,ikoyi_module.inventory_manager_ikoyi,ikoyi_module.store_keeper_ikoyi"/>
+                    <button name="button_cancel" type="object" states='cancel' string="Cancel" class="oe_highlight" groups="stock.group_stock_manager,stock.group_stock_user,ikoyi_module.inventory_manager_ikoyi,ikoyi_module.store_keeper_ikoyi"/>
+                    <button name="button_refuse" type="object" states='store_manager' string="Reject" class="oe_highlight" groups="stock.group_stock_manager,ikoyi_module.inventory_manager_ikoyi"/>
+                    <button name="action_get_attachment_view" type="object" class ="oe_highlight"
+                         string="View Attachments"/>
+                         
+                    <field name="state" widget="statusbar" statusbar_visible="draft,store_manager,done,pm_done"/>
+                </header>
+                <sheet>
+
+
+                <div class="oe_title">
+                        <label string="Name "/>
+                        <h1>
+                            <field name="name" readonly="0" placeholder="Description"/>
+                        </h1>
+                </div>
+
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="1" invisible="1"/>
+                            <field name="employee_id" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}"/>
+
+                            <field name="currency_id" invisible="1"/>
+                            <field name="users_followers" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}" widget="many2many_tags"/>
+                            <field name="date_order" attrs="{'readonly':[('state','!=','draft')]}"/>
+                            
+                            <field name="date_planned" attrs="{'readonly':[('state','!=','draft')]}" required="0"/>
+
+                        </group>
+                        <group>
+                            <field name="branch_id" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}"/>
+                            <field name="warehouse" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}"/>
+                            <field name="location" attrs="{'readonly':[('state','!=','draft')]}" invisible="1" options="{'no_create': True}"/>
+                            <field name="purchase_order_id" readonly="1" options="{'no_create': True}"/>
+                            <field name="origin" attrs="{'readonly':[('state','!=','draft')]}"/>
+                            <field name="notes" placeholder="Add note..."/>
+                            <field name="remarks" placeholder="Add Remarks..."/>
+                            
+
+                        </group>
+                            <div class="oe_title">
+                                <label string="Grand Total"/>
+                                    <h1>
+                                        <field name="total_amount" attrs="{'readonly':[('state','!=','draft')]}" readonly="0"/>
+                                    </h1>
+                                </div>
+
+
+
+                    </group>
+
+                    <notebook>
+
+                        <page string = "Product OrderLines">
+                            <separator colspan="4" string="Materials"/>
+                            <field name="order_line" context="{'ware':warehouse}" attrs="{'readonly':[('state','!=','draft')]}">
+                                <tree string="Product Lines" editable="bottom">
+
+                                    <field name="branch_id"/>
+                                    <field name="warehouse"/>
+                                    <field name="date_planned" invisible="0" required="0"/>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="label"/>
+                                    <field name="taxes_id" widget="many2many_tags"/>
+                                    
+                                    <field name="actual_qty" string="Stock Qty" readonly="1"/>
+                                    <field name="qty" required="1"/>
+                                    <field name="rate"/>
+                                    <field name="remaining_qty" invisible="1" string="Stock Rem.Qty"/>
+                                    <field name="actual_price" required="1" string="Requesting Price"/>
+                                    <field name="total"/>
+                                </tree>
+                            </field>
+
+                        </page>
+
+
+
+                      </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="ikoyimof_tree_view" model="ir.ui.view">
+            <field name="name">ik.material.tree</field>
+            <field name="model">ik.material.request</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='refuse'" decoration-info="state in ('draft','done')" string="MOF Request">
+                        <field name="name"/>
+                        <field name="employee_id"/>
+                        <field name="date_order"/>
+                        <field name="branch_id"/>
+                        <field name="warehouse"/>
+                        <field name="origin"/>
+                        <field name="total_amount"/>
+                        <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="ikoyimof_search_view" model="ir.ui.view">
+           <field name="name">ik.material.request.search</field>
+           <field name="model">ik.material.request</field>
+           <field name="arch" type="xml">
+               <search string="MOF Request">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="MOF name"/>
+                    <field name="date_order"/>
+                    <field name="origin"/>
+                    <filter string="Draft" domain="[('state','=','draft')]" help="Draft MOF"/>
+                    <filter string="To Approve" domain="[('state','=','store_manager')]" help="MOF To Approve" />
+                    <field name="total_amount"/>
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+ 
+
+<!-- ################################ IKOYI PROCUREMENT REQUEST ################################-->
+
+        <record id="mof_request_ikoyi_form" model="ir.ui.view">
+            <field name="name">ikoyi.request</field>
+            <field name="model">ikoyi.request</field>
+            <field name="arch" type="xml">
+                <form string="Procurement MOF">
+                <header>
+
+
+                    <button name="button_procurement_manager_send_to_FA" type="object" states="procurement_manager_one,store_officer_one,store_manager_one" class="oe_highlight" string="Send to F&amp;A"
+                    groups="ikoyi_module.procurement_officer_ikoyi,purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"/>
+
+
+                    <button name="button_fA_send_to_Internal_control" type="object" states="finance_manager_one" class="oe_highlight" string="Send to Internal Control"
+                     groups="ikoyi_module.accountant_ikoyi,ikoyi_module.account_boss_ikoyi"/>
+
+                    <button name="button_internal_to_conditions" type="object" states='inter_control' string="Approve" class="oe_highlight"
+                    groups="ikoyi_module.audit_boss_ikoyi"/>
+
+                    <button name="button_generalmanager_to_vice_chairman" type="object" states='general_manager_one' string="Approve" class="oe_highlight"
+                    groups="ikoyi_module.gm_ikoyi"/>
+
+                    <button name="button_vice_chairman_to_fin_or_chairman" type="object" states='vice' string="Approve" class="oe_highlight"
+                    groups="ikoyi_module.vice_chairman_ikoyi"/>
+
+
+                    <button name="button_chair_send_to_FA" type="object" states='chair' string="Approve" class="oe_highlight"
+                    groups="ikoyi_module.chairman_ikoyi"/>
+
+                    <button name="button_FA_send_to_procurement" type="object" states='finance_manager_two' string="Send to Procurement" class="oe_highlight"
+                    groups="ikoyi_module.account_boss_ikoyi"/>
+
+
+                    <button name="button_procurement_creates_LPO" type="object" states='procurement_manager_two' string="Create LPO" class="oe_highlight"
+                    groups="ikoyi_module.procurement_manager_ikoyi"/>
+
+                    <button name="button_APO_to_Accountant" type="object" states='account_payable_one' string="Raise Requisition" class="oe_highlight"
+                    groups="ikoyi_module.account_payable_ikoyi" invisible="1"/>
+
+                    <button name="get_vendor_bills" type="object" class ="oe_highlight"
+                         string="Create and view Vendor Bill" states="draft,account_payable_one,finance_manager_three,accountant,approve" groups="ikoyi_module.accountant_ikoyi,account.group_account_manager"/>
+                        
+
+
+
+                    <button name="button_Accountant_To_FA" type="object" states='accountant' invisible="1" string="Send to F&amp;A" class="oe_highlight"
+                    groups="ikoyi_module.accountant_ikoyi"/>
+
+                    <button name="button_FA3_internal" type="object" invisible="1" states='finance_manager_three' string="Send to Internal Control" class="oe_highlight"
+                    groups="ikoyi_module.account_boss_ikoyi"/>
+
+                    <button name="button_INTERNAL2_GM" type="object" invisible="1" states='inter_control_two' string="Send to General Manager" class="oe_highlight"
+                    groups="ikoyi_module.audit_boss_ikoyi"/>
+
+                    <button name="button_GM2_APO2" type="object" invisible="1" states='general_manager_two' string="GM Approve" class="oe_highlight"
+                    groups="ikoyi_module.gm_ikoyi"/>
+
+                    <button name="raise_payment_mandate" type="object" invisible="1" states='schedule' string="Raise Mandate" class="oe_highlight"
+                    groups="ikoyi_module.account_payable_ikoyi"/>
+
+                    <button name="action_get_attachment_view" type="object" class ="oe_highlight"
+                         string="View Attachments"/>
+
+
+                    <!--##### REJECTS AND CANCEL ############## purchase.group_purchase_manager"-->
+                   <!-- <button name="button_reject_pm" type="object" states='pm' string="Reject" class="oe_highlight"
+                    groups="purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"/>
+
+                    <button name="button_reject_audit" type="object" states='aud_boss' string="Reject" class="oe_highlight"
+                    groups="ikoyi_module.audit_boss_ikoyi"/>
+
+                    <button name="button_reject_account" type="object" states='fin_boss,fin_boss_two' string="Reject" class="oe_highlight"
+                    groups="ikoyi_module.account_boss_ikoyi"/>
+                    <button name="button_reject_gm" type="object" states='gm,gm_twoconfirm' string="Reject" class="oe_highlight"
+                    groups="ikoyi_module.gm_ikoyi"/>
+                    <button name="button_reject_vicechair" type="object" states='vice' string="Reject" class="oe_highlight"
+                    groups="ikoyi_module.vice_chairman_ikoyi"/>
+                    <button name="button_reject_chair" type="object" states='chair' string="Reject" class="oe_highlight"
+                    groups="ikoyi_module.chairman_ikoyi"/>-->
+
+ 
+                   <button name="button_FA_return_request_back" type="object" string="Return Request"
+                    attrs="{'invisible':[('state', 'not in', ('finance_manager_one'))]}"/>
+
+
+                    <button name="button_reject_internal_for_fA" type="object" string="Return Request"
+                    attrs="{'invisible':[('state', 'not in', ('inter_control'))]}"/>
+
+                    <button name="button_reject_general_for_fA" type="object" string="Return Request"
+                    attrs="{'invisible':[('state', 'not in', ('general_manager_one'))]}"/>
+
+                    <button name="button_reject_vice_for_general" type="object" string="Return Request"
+                    attrs="{'invisible':[('state', 'not in', ('vice'))]}"/>
+
+                    <button name="button_reject_chair_general" type="object" string="Return Request"
+                    attrs="{'invisible':[('state', 'not in', ('chair'))]}"/>
+
+                    <button name="internal_mail_reject_requistion" type="object" string="Return Request"
+                    attrs="{'invisible':[('state', 'not in', ('inter_control_two'))]}"/>
+
+                    <button name="button_refusal_general_account_three" type="object" string="Return Request"
+                    attrs="{'invisible':[('state', 'not in', ('general_manager_two'))]}"/>
+
+
+
+                        <field name="state" widget="statusbar" statusbar_visible="store_officer_one,accountant,vice,chair"/>
+                </header>
+                <sheet>
+
+
+
+                <div class="oe_title">
+                        <label string="Description "/>
+                        <h1>
+                            <field name="name" readonly="0" placeholder="Description" attrs="{'readonly':[('state','!=','draft')]}"/>
+                        </h1>
+                </div>
+                 
+                    <group>
+                        <group>
+                            <field name="date" readonly="1" />
+                            <field name="employee_id" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}"/>
+                            <field name="users_followers" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}" widget="many2many_tags"/>
+                            <field name="dept_ids" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}"/>
+                            <field name="description" />
+                            <field name="branch_id" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}" string="inventory Section"/>
+                            <field name="location" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+
+                            <field name="warehouse" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}"/>
+                            <field name="purchase_order_id" readonly="1"/>
+                            <field name="file_upload" filename="binary_fname" attrs="{'required':[('state','=','account_payable_one')]}"/>
+                            <field name="binary_fname" invisible="1"/>
+
+                            <field name="project_id" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create': True}"/>
+                             <field name="status_progress" widget="percentpie"/>
+                             <field name="amountfig" readonly="0" attrs="{'readonly':[('state','!=','draft')]}"/>
+                             <!--<div class="oe_title">
+                                <label string="Request Amount"/>
+                                    <h1>
+                                        <field name="amountfig" readonly="0"/>
+                                    </h1>
+                                </div>-->
+                        </group>
+                    </group>
+
+                    <notebook>
+
+                        <page string = "Refusal Message">
+                            <field name="description_two" readonly="0"/>
+                        </page>
+                        <page string = "Requisition Return Note">
+                            <field name="reason_back" readonly="0"/>
+                        </page>
+
+                      </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="ikoyireqq_tree_view" model="ir.ui.view">
+            <field name="name">ikoyi.request.tree</field>
+            <field name="model">ikoyi.request</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='done'" colors="red:state=='refused';green:state=='finance_manager_one' "
+                decoration-info="state in ('procurement_manager_one','done')" string="MOF Request">
+
+                        <field name="name"/>
+                        <field name="employee_id"/>
+                        <field name="date" readonly="1"/>
+                        <field name="dept_ids"/>
+                        <field name="branch_id"/>
+                        <field name="location"/>
+                        <field name="warehouse"/>
+                        <field name="purchase_order_id" readonly="1"/>
+                        <field name="amountfig" readonly="0"/>
+                        <field name="state" readonly="0"/>
+
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="ikoyitreq_search_view" model="ir.ui.view">
+           <field name="name">ikoyi.requestsx.search</field>
+           <field name="model">ikoyi.request</field>
+           <field name="arch" type="xml">
+               <search string="MOF Request">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Request name"/>
+                    <field name="date"/>
+                    <field name="purchase_order_id"/>
+                    <filter string="Draft" domain="[('state','=','procurement_manager_one')]" help="Draft Request"/>
+                    <filter string="Chairman To Approve" domain="[('state','=','chair')]" help="Request To Approve" />
+                    <filter string="Vice To Approve" domain="[('state','=','vice')]" help="Request To Approve" />
+                    <filter string="Audit Head To Approve" domain="[('state','=','inter_control')]" help="Request To Approve" />
+                    <filter string="Finance To Approve" domain="[('state','=','finance_manager_one')]" help="Request To Approve" />
+                    <filter string="GM To Approve" domain="[('state','=','general_manager_one')]" help="Request To Approve" />
+                    <field name="amountfig"/>
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="ikoyirefuse_message_form_id" model="ir.ui.view">
+            <field name="name">Reject Back</field>
+            <field name="model">ikoyirefuse.message</field>
+            <field name="arch" type="xml">
+                <form String="Reject">
+                    <group>
+                        <group>
+
+                            <field name="memo_record" readonly="1"/>
+                            <field name="date"/>
+                            <field name="purchase_id"/>
+                        </group>
+                        <group>
+                            <field name="resp" readonly="0"  invisible="1"/>
+                            <field name="users_followers" widget="many2many_tags"/>
+                            <!--<field name="direct_memo_user" string ="Initiator"/> -->
+                        </group>
+                            <field name="reason" placeholder="Please Add Reason(s) ..." colspan="4"/>
+                    <footer>
+                        <button name="post_refuse" type="object" string="Refuse" class="oe_highlight"/>
+                            <button string="Cancel" class="oe_link" special="cancel"/>
+                        </footer>
+                    </group>
+                </form>
+            </field>
+        </record>
+        <record id="generalikoyi_back_wizard" model="ir.ui.view">
+            <field name="name">Return Request</field>
+            <field name="model">generalreturn.ikoyi</field>
+            <field name="arch" type="xml">
+                <form String="Reason for Returning">
+                    <group>
+
+                        <group>
+                            <field name="memo_record" readonly="1"/>
+                            <field name="inv_memo_record" readonly="1"/>
+                            <field name="date"/>
+                            <field name="purchase_id"/>
+                        </group>
+                        <group>
+                            <field name="resp" readonly="0"  invisible="1"/>
+
+                            <field name="users_followers" widget="many2many_tags"/>
+                        </group>
+                            <field name="reason" placeholder="Please Add Reason(s) ..." colspan="4"/>
+                    <footer>
+                        <button name="post_back" type="object" string="Return" class="oe_highlight"/>
+                            <button string="Cancel" class="oe_link" special="cancel"/>
+                        </footer>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="iko_payment_action_schedule_main" model="ir.actions.act_window">
+            <field name="name">Payment Requisition</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">payment.schedule.ikoyi</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to create payment schedule.
+              </p>
+            </field>
+        </record>
+
+        <record id="iko_payment_action_mandate_main" model="ir.actions.act_window">
+            <field name="name">Payment mandate</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">payment.mandate.ikoyi</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to create payment mandate.
+              </p>
+            </field>
+        </record>
+
+         <record model="ir.ui.view" id="iko_payment_schedule_form_view">
+            <field name="name">Payment Schedule</field>
+            <field name="model">payment.schedule.ikoyi</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="accountpay_accountant" type="object" class ="oe_highlight"
+                         string="Send to Accountant" states="account_payable,draft" groups="ikoyi_module.account_payable_ikoyi,account.group_account_manager,base.group_system"/>
+                         <button name="accountant_fa" type="object" class ="oe_highlight"
+                         string="Approve" states="accountant" groups="ikoyi_module.accountant_ikoyi,account.group_account_manager,base.group_system"/>
+
+                         <button name="fa_internal" type="object" class ="oe_highlight" invisible="0"
+                         string="Approve" states="f_and_a" groups="ikoyi_module.account_boss_ikoyi,base.group_system"/>
+
+                        <button name="internal_control_gm" type="object" class ="oe_highlight"
+                         string="Approve" states="internal_control" groups="ikoyi_module.audit_boss_ikoyi,base.group_system"/>
+
+                         <button name="gm_apo_mandate" type="object" class ="oe_highlight"
+                         string="Approve" states="gm" groups="ikoyi_module.gm_ikoyi,base.group_system"/>
+
+                          <!--<button name="button_print_mandate" type="object" class ="oe_highlight"
+                         string="Print Mandate" states="approve,done" groups="ikoyi_module.account_payable_ikoyi,account.group_account_manager" invisible="1"/>-->
+                        <button name="button_register_payment" type="object" class ="oe_highlight"
+                         string="Register Payment" states="approve" invisible="1" groups="ikoyi_module.account_payable_ikoyi,account.group_account_manager,base.group_system"/>
+
+                        <button name="get_vendor_bills" type="object" class ="oe_highlight"
+                         string="View Invoices" states="draft,account_payable,accountant,approve" groups="ikoyi_module.accountant_ikoyi,account.group_account_manager"/>
+                        
+                            <button name="action_get_attachment_view" type="object" class ="oe_highlight"
+                         string="View Attachments" states="approve" groups="ikoyi_module.accountant_ikoyi,account.group_account_manager"/>
+        
+                        <button name="button_reject_accountant" type="object" class ="oe_highlight"
+                         string="Reject" states="accountant" groups="ikoyi_module.accountant_ikoyi,base.group_system"/>
+
+                         <button name="button_reject_fa" type="object" class ="oe_highlight"
+                         string="Reject" states="f_and_a" groups="ikoyi_module.account_boss_ikoyi,base.group_system"/>
+
+                        <button name="button_reject_internal_control" type="object" class ="oe_highlight"
+                         string="Reject" states="internal_control" groups="ikoyi_module.audit_boss_ikoyi,base.group_system"/>
+
+                        <button name="button_reject_gm" type="object" class ="oe_highlight"
+                         string="Reject" states="gm" groups="ikoyi_module.gm_ikoyi,base.group_system"/>
+                        <button name="print_requisition_pop" type="object" class ="oe_highlight"
+                         string="Print"/>
+ 
+                        
+                        <field name="state" widget="statusbar" statusbar_visible="draft,account_payable,accountant,gm" /><!--statusbar_visible="draft,reported,done,refused"-->
+
+
+                    </header>
+                    <sheet>
+                        
+                        <group>
+                            <group>
+
+                                <field name = "name" string='Vendor Name'/>
+                                <field name = "vendor_account"/>
+                                <field name = "vendor_bank"/>
+                                <field name = "select_mode" string="Select Mode" />
+                                <field name = "ikoyi_ref" invisible="1"/>
+                                
+                                <field name = "purchase_id" invisible="1"/><!-- attrs="{'invisible':[('select_mode','!=','pur')],'required':[('select_mode','=','pur')]}" />-->
+
+                             </group>
+                             <group>
+                             <field name = "payment_date" string="Payment Date" required="0"/>
+                                <field name = "date_sche"/>
+                               
+                                <field name = "pay_amount"/>
+                                <field name = "product_qty" invisible="1"/>
+                                <field name = "invoice_ids" widget="many2many_tags" required="1" readonly="0"/>
+                                <field name = "pay_account" string="Journal"/>
+                                <field name="file_upload" filename="binary_fname"/>
+                            <field name="binary_fname" invisible="1"/>
+
+
+
+
+                             </group>
+                        </group>
+                        <notebook>
+                                <page string="Signatures">
+                                   
+                                    <group colspan ="2">
+                                    <group>
+                                        <field name="signatures_apo" invisible="1" widget="signature"/>
+                                         <!-- attrs="{'required':[('state','in',['approve','account_payable'])]}" -->
+                                        <field name="signatures_accountant" invisible="1" widget="signature"/>
+                                        <field name="signatures_fa" invisible="1" widget="signature"/>
+                                         <!-- attrs="{'required':[('state','=','f_and_a')]}" -->
+                                        <field name="signatures_ic" invisible="1" widget="signature"/>
+                                         <!-- attrs="{'required':[('state','=','internal_control')]}"  -->
+                                     
+                                    </group>
+                                        
+                                    <group>
+                                        <field name="signatures_gm" invisible="1" widget="signature"/> 
+                                        <!-- attrs="{'required':[('state','=','gm')]}"  -->
+                                        <field name="signatures_acc" invisible="1" widget="signature"/>
+                                        <!-- attrs="{'required':[('state','=','accountant2_mandate')]}" -->
+                                     
+                                    </group>
+                                    </group>
+                                </page>
+                            </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+          <record id="iko_schedule_payment_tree" model="ir.ui.view">
+            <field name="name">Payment Schedule Tree</field>
+            <field name="model">payment.schedule.ikoyi</field>
+            <field name="arch" type="xml">
+                <tree string="Payment Requisitions">
+
+                <!--<tree decoration-muted="state=='draft'" colors="red:state=='accountant';green:state=='approve' "
+                decoration-info="state in ('account_payable','approve')" string="Payment Schedule" >-->
+
+                    <field name = "name" string='Vendor'/>
+                    <field name = "ikoyi_ref" invisible="1"  />
+
+                    <field name = "purchase_id" invisible="1" />
+
+
+                    <field name = "pay_amount"/>
+                    <field name = "vendor_account"/>
+                    <field name = "date_sche"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="payment_schedule_search_view" model="ir.ui.view">
+               <field name="name">payment.schedule.ikoyi.search</field>
+               <field name="model">payment.schedule.ikoyi</field>
+               <field name="arch" type="xml">
+                   <search string="Payment Requisition">
+                        <field name="name"/><!-- filter_domain="[('name','ilike',self)]" string="MOF name"/>-->
+                        <field name="date_sche"/>
+
+                        <filter string="Draft" domain="[('state','=','draft')]" help="Draft"/>
+                        <filter string="Mandate to Pay" domain="[('state','=','account_payable')]" help="Payment mandate to pay" />
+                        <field name="pay_amount"/>
+                        <field name="state"/>
+                    </search>
+                </field>
+            </record>
+
+
+        <record model="ir.ui.view" id="iko_payment_mandate_form_view">
+            <field name="name">Payment mandate</field>
+            <field name="model">payment.mandate.ikoyi</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                    <button name="apo_raise_mandate" type="object" class ="oe_highlight"
+                         string="Raise Mandate" states="draft" groups="ikoyi_module.account_payable_ikoyi,account.group_account_manager"/>
+
+                        <button name="accountpay_accountant" type="object" class ="oe_highlight"
+                         string="Send to Accountant" states="account_payable" groups="ikoyi_module.account_payable_ikoyi,account.group_account_manager"/>
+
+                        <button name="accountant_accountpay2_print" type="object" class ="oe_highlight"
+                         string="Approve Mandate" states="accountant" groups="ikoyi_module.accountant_ikoyi,account.group_account_manager"/>
+
+                        <button name="accountant_reject" type="object" class ="oe_highlight"
+                         string="Reject" states="accountant" groups="ikoyi_module.accountant_ikoyi,account.group_account_manager"/>
+
+                       <button type="object" class ="oe_highlight"
+                         string="Print Mandate" states="approve" name="print_mandate_pop" groups="ikoyi_module.account_payable_ikoyi,account.group_account_manager"/>
+ 
+                        <button name="button_register_payment" type="object" class ="oe_highlight"
+                         string="Register Payment" states="approve" invisible="1" groups="ikoyi_module.account_payable_ikoyi,account.group_account_manager"/>
+
+                          <field name="state" widget="statusbar" statusbar_visible="draft,account_payable,accountant,approve" /><!--statusbar_visible="draft,reported,done,refused"-->
+
+
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="get_vendor_bills" type="object" class ="oe_highlight"
+                                string="View Invoices" states="draft,account_payable,accountant,approve" groups="ikoyi_module.accountant_ikoyi,account.group_account_manager"/>
+                            <button name="action_get_attachment_view" type="object" class ="oe_highlight"
+                                string="View Attachments" states="approve" groups="ikoyi_module.accountant_ikoyi,account.group_account_manager"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name = "requisition_ref" invisible="0" required="0"/>
+                                <field name = "name" string='Vendor Name'/>
+                                <field name = "vendor_account" attrs="{'required':[('state','=','approve')]}"/>
+                                <field name = "vendor_bank" attrs="{'required':[('state','=','approve')]}"/>
+                                <field name = "select_mode" string="Select Mode" required="1"/>
+                                <field name = "ikoyi_ref" invisible="0" attrs="{'invisible':[('select_mode','!=','mat')],'required':[('select_mode','=','mat')]}"/>
+                                <field name = "ikoyi_req_ref" invisible="1" required="0"/>
+                                <field name = "purchase_id" attrs="{'invisible':[('select_mode','!=','pur')]}" />
+                                <field name = "invoice_ids" widget="many2many_tags" required="1" readonly="0"/>
+                             </group>
+                             <group> 
+
+                                <field name = "payment_date" string="Payment Date" required="0"/>
+                                <field name = "date_sche" attrs="{'required':[('state','in',['draft','approve'])]}"/>
+                                <field name = "pay_amount" attrs="{'required':[('state','=','approve')]}"/>
+                                <field name = "product_qty" invisible="1"/>
+                                <field name = "pay_account" string="Journal" attrs="{'required':[('state','=','approve')]}"/>
+                                <field name="file_upload" filename="binary_fname"/>
+                                <field name="binary_fname" invisible="1"/> 
+                             </group>
+                        </group>
+                        <notebook>
+                                <page string="Signatures" invisible="1">
+                                    
+                                    <group>
+                                        <field name="signatures_apo"  invisible="1" widget="signature"/> 
+                                    </group>
+                                    <group>
+                                        <field name="signatures_accountant"  invisible="1" widget="signature"/>
+                                     
+                                    </group>
+                                </page>
+                            </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+          <record id="iko_mandate_payment_tree" model="ir.ui.view">
+            <field name="name">Payment Mandate Tree</field>
+            <field name="model">payment.mandate.ikoyi</field>
+            <field name="arch" type="xml">
+                <tree string="Payment mandate">
+                    <field name = "name" string='Vendor'/>
+                    <field name = "ikoyi_ref" invisible="1" />
+                    <field name = "ikoyi_req_ref" required="1"  />
+
+                    <field name = "purchase_id" invisible="1"/>
+
+
+                    <field name = "pay_amount"/>
+                    <field name = "vendor_account"/>
+                    <field name = "date_sche"/>
+
+                </tree>
+            </field>
+
+
+        </record>
+        <record id="payment_mandate_search_view" model="ir.ui.view">
+               <field name="name">payment.mandate.ikoyi.search</field>
+               <field name="model">payment.mandate.ikoyi</field>
+               <field name="arch" type="xml">
+                   <search string="Payment Mandate">
+                        <field name="name"/><!-- filter_domain="[('name','ilike',self)]" string="MOF name"/>-->
+                        <field name="date_sche"/>
+
+                        <filter string="Draft" domain="[('state','=','draft')]" help="Draft"/>
+                        <filter string="Mandate to Pay" domain="[('state','=','account_payable')]" help="Payment mandate to pay" />
+                        <field name="pay_amount"/>
+                        <field name="vendor_bank" filter_domain="[('vendor_bank','ilike',self)]"/>
+                        <field name="state"/>
+                    </search>
+                </field>
+            </record>
+
+
+
+
+
+
+        <!--#### F-->
+        <record id="ik_fixed_request_form" model="ir.ui.view">
+            <field name="name">ik.fixed.request</field>
+            <field name="model">ik.fixed.request</field>
+            <field name="arch" type="xml">
+                <form string="Fixed Asset Request">
+                <header>
+    <button name="to_cost_officer" type="object" states="draft" class="oe_highlight"
+        string="Send to Cost Officer"
+        groups="base.group_system, purchase.group_purchase_manager,purchase.group_purchase_user,
+        stock.procurement_manager_ikoyi,stock.group_stock_user,ikoyi_module.procurement_manager_ikoyi,
+        ikoyi_module.inventory_manager_ikoyi,ikoyi_module.store_keeper_ikoyi"/>
+
+    <button name="cost_officer_FA" type="object" states="cost_office" class="oe_highlight"
+        string="Send to FA"
+        groups="ikoyi_module.costing_manager_ikoyi,base.group_system"/>
+
+    <button name="cost_FA_GM" type="object" states="finance_manager_one" class="oe_highlight"
+        string="Send to GM"
+        groups="ikoyi_module.account_boss_ikoyi,base.group_system"/>
+
+    <button name="GM_to_committee_Members" type="object" states="general_manager_one" class="oe_highlight"
+        string="Send to Committee"
+        groups="ikoyi_module.gm_ikoyi,base.group_system"/>
+
+    <button name="Committee_to_Procurement" type="object" states="main_committee" class="oe_highlight"
+        string="Send to PM"
+        groups="ikoyi_module.main_committee_ikoyi,base.group_system"/>
+    <button name="Procurement_to_LPO" type="object" states="procurement_manager_one" class="oe_highlight"
+        string="Raise LPO"
+        groups="ikoyi_module.procurement_manager_ikoyi,base.group_system"/>
+
+    <button name="Finance_admin_to_GMTWO" type="object" states="finance_manager_two" class="oe_highlight"
+        string="Send to GM-"
+        groups="ikoyi_module.account_boss_ikoyi,base.group_system"/>
+    <button name="GMTWO_Procurement" type="object" states="general_manager_two" class="oe_highlight"
+        string="Approve for Procurement"
+        groups="ikoyi_module.gm_ikoyi,base.group_system"/>
+
+
+    <button name="Procurement_to_ConfirmS" type="object" states="procurement_manager_two" class="oe_highlight"
+        string="Create Purchase Order"
+        groups="ikoyi_module.procurement_manager_ikoyi,base.group_system"/>
+
+
+        <field name="state" widget="statusbar" statusbar_visible="draft,finance_manager_one,general_manager_one,done,pm_done"/>
+                </header>
+                <sheet>
+
+
+                <div class="oe_title">
+                        <label string="Name "/>
+                        <h1>
+                            <field name="name" placeholder="Description" readonly="0"/>
+                        </h1>
+                </div>
+
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="1"/>
+                            <field name="employee_id" options="{'no_create': True}"/>
+
+                            <field name="currency_id" invisible="1"/>
+                            <field name="users_followers" options="{'no_create': True}" widget="many2many_tags"/>
+                            <field name="date_order"/>
+                            <field name="date_planned" required="0"/>
+
+                        </group>
+                        <group>
+                            <field name="branch_id" options="{'no_create': True}"/>
+                            <field name="warehouse" options="{'no_create': True}"/>
+                            <field name="location" options="{'no_create': True}"/>
+                            <field name="purchase_order_id" readonly="1"/>
+                            <field name="origin"/>
+
+                            <field name="notes" placeholder="Add note..."/>
+
+                        </group>
+                            <div class="oe_title">
+                                <label string="Grand Total"/>
+                                    <h1>
+                                        <field name="total_amount" readonly="0"/>
+                                    </h1>
+                                </div>
+
+
+
+                    </group>
+
+                    <notebook>
+
+                        <page string = "Product OrderLines">
+                            <separator colspan="4" string="Materials"/>
+                            <field name="order_line" context="{'ware':warehouse}">
+                                <tree string="Product Lines" editable="bottom">
+
+                                    <field name="branch_id"/>
+                                    <field name="warehouse"/>
+                                    <field name="date_planned" invisible="0" required="1"/>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="label"/>
+                                    <field name="actual_qty" string="Stock Qty" readonly="1"/>
+                                    <field name="qty" required="1"/>
+                                    <field name="rate"/>
+                                    <field name="remaining_qty" invisible="1" string="Stock Rem.Qty"/>
+                                    <field name="actual_price" string="Costing Price"/>
+                                    <field name="total"/>
+                                </tree>
+                            </field>
+
+                        </page>
+
+
+
+                      </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="ikfixedasset_tree_view" model="ir.ui.view">
+            <field name="name">ik.fixed.requesttree</field>
+            <field name="model">ik.fixed.request</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='refuse'" decoration-info="state in ('draft','done')" string="Asset Request">
+                        <field name="name"/>
+                        <field name="employee_id"/>
+                        <field name="date_order"/>
+                        <field name="branch_id"/>
+                        <field name="warehouse"/>
+                        <field name="origin"/>
+                        <field name="total_amount"/>
+                        <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="ikoyiassetfixed_search_view" model="ir.ui.view">
+           <field name="name">ik.fixed.request.search</field>
+           <field name="model">ik.fixed.request</field>
+           <field name="arch" type="xml">
+               <search string="Fixed Asset Request">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="MOF name"/>
+                    <field name="date_order"/>
+                    <field name="origin"/>
+                    <filter string="Draft" domain="[('state','=','draft')]" help="Draft"/>
+                    <filter string="To Approve" domain="[('state','=','store_manager')]" help="Fixed Asset Request To Approve" />
+                    <field name="total_amount"/>
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+
+    <!--###############################-->
+
+    <act_window id="payment_fa_mandate"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'finance_manager_one')]"
+        view_mode="tree,form"/>
+
+
+        <act_window id="payment_interone_mandate"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'inter_control')]"
+        view_mode="tree,form"/>
+
+        <act_window id="general_manager_one_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'general_manager_one')]"
+        view_mode="tree,form"/>
+
+        <act_window id="account_payable_one_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'account_payable_one')]"
+        view_mode="tree,form"/>
+
+        <act_window id="accountant_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'accountant')]"
+        view_mode="tree,form"/>
+
+        <act_window id="accopay2_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'account_payable_two')]"
+        view_mode="tree,form"/>
+        <act_window id="vicechairman_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'vice')]"
+        view_mode="tree,form"/>
+        <act_window id="chairman_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'chair')]"
+        view_mode="tree,form"/>
+
+         <act_window id="general_manager_two_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'general_manager_two')]"
+        view_mode="tree,form"/>
+
+         <act_window id="inter_control_two_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'inter_control_two')]"
+        view_mode="tree,form"/>
+
+         <act_window id="schedulerequestv_action"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', '=', 'schedule')]"
+        view_mode="tree,form"/>
+
+    <menuitem name="Payment Mandate &amp; Requisition" id="payement_sche_main_ikoyi" parent="account.menu_finance_payables" sequence="8"/>
+         <menuitem name="Requistion Form" id="payement_sche_sub_ikoyi" sequence="1" parent ="payement_sche_main_ikoyi" action="iko_payment_action_schedule_main"/>
+      
+    <act_window id="actionmenu_ikoyi_requisition"
+        name="Requisition"
+        res_model="payment.schedule.ikoyi"
+        domain="[('state', 'not in', ['internal_control','gm'])]"
+        view_mode="tree,form"/>
+        <!-- <menuitem name="Account Requisition" id="account_requisition_menu" sequence="2" invisible="1" parent ="payement_sche_main_ikoyi" action="ikoyi_module.actionmenu_ikoyi_requisition" />
+         -->
+
+    <act_window id="accopay2_action_accountmenu"
+        name="Request"
+        res_model="ikoyi.request"
+        domain="[('state', 'in', ['account_payable_two','account_payable_one','finance_manager_one','schedule','accountant'])]"
+        view_mode="tree,form"/>
+        <!-- <menuitem name="MOF Requests For Approval" invisible="1" id="requests_mof_apo_menu" sequence="2" parent ="payement_sche_main_ikoyi" action="ikoyi_module.accopay2_action_accountmenu" />
+         -->
+
+<menuitem name="Payment Mandate Form" id="paymentmandate_menu" sequence="2" parent ="payement_sche_main_ikoyi" action="iko_payment_action_mandate_main"/>
+      
+
+        <menuitem name="Material Order Form"
+                    id="mof_menu_id"
+                    groups="ikoyi_module.store_keeper_ikoyi,ikoyi_module.inventory_manager_ikoyi,stock.group_stock_manager,stock.group_stock_user"
+                    web_icon="ikoyi_module,static/description/icon.png"
+                    sequence="8"
+                    parent="stock.menu_stock_warehouse_mgmt"
+                    action="mof_request_action"/>
+
+        <menuitem name="Ikoyi Request"
+                    id="ikoyi_material_request_id"
+                    web_icon="ikoyi_module,static/description/icon.png"
+                    sequence="8" action="ikoyi_request_product_action"
+                    />
+            <menuitem name="Request" id="menu_ikoyirequest_sub_id" sequence="1" parent ="ikoyi_material_request_id"/>
+                    <menuitem name="Material Request" id="menu_material_request_sub_id" sequence="1" parent ="menu_ikoyirequest_sub_id" action="ikoyi_request_product_action" groups="base.group_system"/>
+                        <menuitem name="F&amp;A First Approval" id="menu_material_request_fafirst_id" sequence="1" parent ="menu_material_request_sub_id" action="payment_fa_mandate" groups="base.group_system,ikoyi_module.account_payable_ikoyi"/>
+
+
+                            <menuitem name="Internal Control Approve" id="menu_material_request_interone_id" sequence="2" parent ="menu_material_request_sub_id" action="payment_interone_mandate" groups="ikoyi_module.audit_boss_ikoyi"/>
+                            <menuitem name="GM first Approve" id="menu_material_request_gmone_id" sequence="3" parent ="menu_material_request_sub_id" action="general_manager_one_action" groups="ikoyi_module.gm_ikoyi"/>
+                            <menuitem name="APO First Approve" id="menu_material_request_apoone_id" sequence="4" parent ="menu_material_request_sub_id" action="account_payable_one_action" groups="ikoyi_module.account_payable_ikoyi"/>
+                            <menuitem name="Accountant Approve" id="menu_material_request_accountant_id" sequence="5" parent ="menu_material_request_sub_id" action="accountant_action" groups="ikoyi_module.accountant_ikoyi"/>
+                            <menuitem name="Vice Approve" id="menu_material_request_vicechair_id" sequence="6" parent ="menu_material_request_sub_id" action="vicechairman_action" groups="ikoyi_module.vice_chairman_ikoyi"/>
+                            <menuitem name="APO 2nd Approve" id="menu_material_request_apo2_id" sequence="8" parent ="menu_material_request_sub_id" action="accopay2_action" groups="ikoyi_module.account_payable_ikoyi"/>
+                            
+                            <menuitem name="Chairman" id="menu_material_request_chairman_id" sequence="7" parent ="menu_material_request_sub_id" action="chairman_action" groups="ikoyi_module.chairman_ikoyi"/>
+                            <menuitem name="GM 2nd Approve" id="menu_material_request_gm2_id" sequence="9" parent ="menu_material_request_sub_id" action="general_manager_two_action" groups="ikoyi_module.gm_ikoyi"/>
+                            <menuitem name="IC 2nd Approve" id="menu_material_request_accountpay_id" sequence="10" parent ="menu_material_request_sub_id" action="inter_control_two_action" groups="ikoyi_module.audit_boss_ikoyi"/>
+                            <menuitem name="Requistion" id="menu_material_request_requisition_id" sequence="11" parent ="menu_material_request_sub_id" action="schedulerequestv_action" groups="ikoyi_module.account_payable_ikoyi"/>
+                            
+
+                    <menuitem name="Fixed Asset Request" id="menu_fixedasset_request_sub_id" sequence="2" parent ="menu_ikoyirequest_sub_id" action="fixed_asset_request_action"/>
+                    <menuitem name="Requisition Form" id="menu_requisition_sub_id" sequence="9" parent ="menu_ikoyirequest_sub_id" action="iko_payment_action_schedule_main"/>
+
+             
+
+
+    </data>
+</odoo>

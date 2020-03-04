@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <!-- Purchase Report Action -->
+        <report id="print_order_ikoyi_report"
+            string="Purchase Order"
+            model="purchase.order"
+            report_type="qweb-pdf"
+            name="ikoyi_module.purchase_order_prints"
+            file="ikoyi_module.purchase_order_prints"
+            menu="False"
+            />
+            
+        <template id="purchase_order_prints">
+            <t t-call="report.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="report.external_layout">
+                        <div class="page">
+
+                            <div class="row">
+                                <h2>
+                                    <span>
+                                        <center><u>IKOYI CLUB 1938</u></center>
+                                    </span>
+                                </h2>
+                            </div>
+                            <div class="row">
+                                <center> <div class="watermark;col-xs-8" styles="position:absolute;opacity:0.25; font-size:50px;width:200%;z-index">
+                                    <img src="/ikoyi_module/static/img/ikoyi_logo2.png" style="max-height:140px;max-width:100px;"/>
+                                </div></center>
+                            </div>
+ 
+                            <div class="row">
+                                <div class="col-xs-3" style="font-size: 17px;">
+                                    <strong>PO Number: </strong><span t-esc="o.name"/><br/>
+                                    <strong>Vendor: </strong><span t-esc="o.partner_id.name"/><br/>
+                                    <strong> </strong><br/>
+                                </div>
+                            </div>
+                            <div class="row">
+                               <!-- <div class="col-xs-6 col-xs-offset-8" style="font-size: 17px;">-->
+                                <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                                    <strong>Branch: </strong><span t-esc="o.branch_id.name"/><br/>
+                                    <strong>  </strong><br/>
+                                    <strong>Date:</strong><span t-esc="o.date_order"/>
+                                     <!-- <span t-raw="time.strftime('%Y-%m-%d')"/> -->
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-3" style="font-size: 17px;">
+                                    <strong>Purchase No:<u><span t-field="o.name"/> </u></strong><br/>
+                                </div>
+
+                               <!-- <div class="col-xs-6 col-xs-offset-8" style="font-size: 17px;">-->
+                                <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                                    <strong>Initiator:</strong><span t-field="o.employee_id.name"/><br/>
+                                </div>
+                            </div><br/><br/>
+                            
+                            <div class="row" style="font-size: 17px;">
+                                <div class="col-xs-6" style="text-align:left">
+                                    <span><strong>Purchase Items</strong></span>
+                                </div>
+                                <br/>
+                                <br/>
+                                <table class="table table-bordered">
+                                <t t-set="qty" t-value="0"/>
+                                    <thead>
+                                        <tr>
+                                            <th><strong>Product</strong></th>
+                                            <th><strong>Description</strong></th>
+                                            <th><strong>Qty</strong></th>
+                                            <th><strong>Unit Price</strong></th>
+                                            <!--<th><strong>Status</strong></th>-->
+                                            <th><strong>Total</strong></th>
+                                            <!--Return -->
+                                        </tr>
+                                    </thead>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <tbody> 
+										<tr>
+                                            <td> <span t-esc="line.product_id.name"/></td>
+											<td> <span t-esc="line.name"/></td>
+                                            <td> <span t-esc="line.product_qty"/></td>
+                                            <td> <span t-esc="line.price_unit"/></td>
+                                            <td> <span t-esc="line.price_subtotal"/></td>
+                                            <!--<t t-set="line.product_id.list_price" t-as="product"/>
+                                            <t t-set="line.qty_done" t-as="quantity_unit"/>-->
+                                            <!-- <td> <span t-esc="line.qty * line.product_id.list_price"/> </td> -->
+                                            <!--<td> <span t-esc="line.state"/></td>-->
+										</tr>
+									</tbody>
+                                </t>
+                                <t>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td><strong>Net Total:</strong></td>
+                                    <td><span t-esc="sum(lines.price_unit for lines in o.order_line)"/>
+                                    </td>
+                                </t> 
+                                </table>
+							</div> 
+                             
+                            <div class="row">
+                                <div class="col-xs-3" style="font-size: 17px;">
+                                    <strong><span t-field="o.employee_id.name"/></strong><br/>
+                                    <strong>Initiator</strong>
+
+                                </div>
+                                <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                                     .
+                                </div><br/>
+
+                             </div>
+
+                            <div class="row">
+                                <div class="col-xs-3" style="font-size: 17px;">
+                                    <strong>Signature:.......................</strong><br/>
+                                    <strong>Vendor</strong>
+
+                                </div>
+                                <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                                    <strong>.......................</strong><br/>
+                                    <strong>Initiator's Signature</strong>
+                                </div>
+                                
+                            </div>
+						</div>
+					</t>
+				</t>
+			</t>
+		</template>         
+	</data>
+</odoo>
+
+
+

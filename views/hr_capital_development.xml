@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        
+        <record id="hr_capital_development_form" model="ir.ui.view">
+            <field name="name">hr.capital.development</field>
+            <field name="model">hr.capital.development</field>
+            <field name="arch" type="xml">
+                <form string="HR Capital Development">
+                <header>
+                    <button name="send_to_hr" type="object" confirm="Are you ready to send to Manager?" states="HR Officer1" class="oe_highlight" string="Send to HR Manager" id="cap_hr_send_ids" groups="hr.group_hr_manager,hr.group_hr_user,ikoyi_module.ikoyi_hod,ikoyi_module.ikoyi_hou"/>
+                    <button name="send_to_executive" type="object" states="HR manager" confirm="Are you ready to send to Executive Members?" class="oe_highlight" string="Approve" groups="hr.group_hr_manager,base.group_system"/>
+                    <!--<button name="send_to_gm" type="object" states='Executive' string="Approve" class="oe_highlight" groups="ikoyi_module.executive_management_ikoyi,base.group_system"/>
+                    --><button name="send_gm_hr2" type="object" states='Executive' string="Approve" class="oe_highlight" groups="ikoyi_module.gm_ikoyi,base.group_system"/>
+                    <button name="send_to_hr_officer" type="object" states='HR manager2' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="send_to_hr_manager3" type="object" states='HR Officer2' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,hr.group_hr_user,ikoyi_module.ikoyi_hod,ikoyi_module.ikoyi_hou"/>
+                    <!-- <button name="manager_send_to_irc" type="object" states='HR manager3' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,hr.group_hr_user,ikoyi_module.ikoyi_hod,ikoyi_module.ikoyi_hou"/> -->
+                    <button name="manager_send_to_irc" type="object" states='GM' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,hr.group_hr_user,ikoyi_module.ikoyi_hod,ikoyi_module.ikoyi_hou,base.group_system"/>
+                     
+                     <button name="send_to_hr4" type="object" states='IRC' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,ikoyi_module.vice_chairman_ikoyi,base.group_system"/>
+                    <button name="send_to_hod" type="object" states='HR manager4' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    
+
+                    <button name="button_rejects" type="object" states='HR manager' string="Reject" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="button_rejects" type="object" states='Executive' string="Reject" class="oe_highlight" groups="ikoyi_module.executive_management_ikoyi,base.group_system"/>
+                    <button name="button_rejects" type="object" states='HR manager3' string="Reject" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="button_rejects" type="object" states='IRC' string="Reject" class="oe_highlight" groups="hr.vice_chairman_ikoyi,base.group_system"/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="Executive,GM,IRC,HOD"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box">
+                        <!-- <button name="button_send_back"
+                            class="oe_stat_button"
+                            icon="fa-angle-double-left"
+                            type="object" string="Return Memo">
+                        </button> -->
+                        <div class="oe_button_box">
+                            <button name="action_get_attachment_view"
+                                class="oe_stat_button"
+                                icon="fa-book"
+                                type="object">
+                                <field name="attachment_number" widget="statinfo" string="View Attachments"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="oe_title">
+                            <label string="Name "/>
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="1" invisible="1"/>
+                            <field name="employee_id" attrs="{'readonly':[('state','!=','HR Officer1')]}" options="{'no_create': True}"/>
+                            <field name="date_order" attrs="{'readonly':[('state','!=','HR Officer1')]}"/>
+ 
+                            <field name="users_followers" attrs="{'readonly':[('state','!=','HR Officer1')]}" options="{'no_create': True}" widget="many2many_tags"/>
+                            <field name="date_order" attrs="{'readonly':[('state','!=','HR Officer1')]}"/>
+                             
+                        </group>
+                        <group>
+                            <field name="file_upload" filename="binary_fname" attrs="{'required':[('state','=','HR Officer1')]}"/>
+                            <field name="binary_fname" invisible="1"/>
+
+                            <field name="file_upload_blueprint" filename="binary_fname_blueprint" attrs="{'required':[('state','=','HR Officer1')]}"/>
+                            <field name="binary_fname_blueprint" invisible="1"/>
+
+                            <field name="file_upload_activity_workplan" filename="binary_fname_activity_workplan" attrs="{'required':[('state','=','HR Officer2')]}"/>
+                            <field name="binary_fname_activity_workplan" invisible="1"/>
+
+                            <field name="branch_id" invisible = "1" attrs="{'readonly':[('state','!=','HR Officer1')]}" options="{'no_create': True}"/>
+                             
+                        </group>
+                            <div class="oe_title">
+                                <label string="Notes"/>
+                                    <h1>
+                                        <field name="notes" string ="Note" Placeholder="Add note..."/>
+                                    </h1>
+                                </div>
+                    </group>
+
+                    <notebook>
+
+                        <page string = "Refusal Message">
+                            <field name="description_two" readonly="0"/>
+                           
+                        </page>
+
+                      </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="hr_captial_development_tree_view" model="ir.ui.view">
+            <field name="name">hr.capital.development.tree</field>
+            <field name="model">hr.capital.development</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='refuse'" decoration-info="state in ('HR Officer1')" string="HR Capital Development">
+                        <field name="name"/>
+                        <field name="employee_id"/>
+                        <field name="date_order"/>
+                        <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="hr_captial_development_search_view" model="ir.ui.view">
+           <field name="name">hr.capital.development.search</field>
+           <field name="model">hr.capital.development</field>
+           <field name="arch" type="xml">
+               <search string="HR Capital Development">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="HR Capital Development"/>
+                    <field name="date_order"/>
+                     
+                    <filter string="HR Officer1" domain="[('state','=','HR Officer1')]" help="HR Officer1"/>
+                    <filter string="To Approve" domain="[('state','=','HR manager')]" help="To Approve" />
+                     
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="human_captial_dev_action" model="ir.actions.act_window">
+            <field name="name">Human Capital Development</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.capital.development</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to create.
+              </p>
+            </field>
+        </record>
+
+      
+
+        <menuitem
+            id="hr_plan_id"
+            name="HR Plan"
+            groups="hr.group_hr_manager,hr.group_hr_user,base.group_user,ikoyi_module.ikoyi_hod,ikoyi_module.ikoyi_hou"
+            parent="hr.menu_hr_root"
+            sequence="80"/>
+        <menuitem
+            id="hr_capital_dev_menu"
+            name="HR Capital Development"
+            parent="hr_plan_id"
+            action="human_captial_dev_action"
+            sequence="1"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+         
+
+        <record id="seq_hr_capital_development" model="ir.sequence">
+            <field name="name">HR Captial Development</field>
+            <field name="code">hr.capital.development</field>
+            <field name="prefix">HR-DEV</field>
+            <field name="padding">4</field>
+        </record>
+         <record id="seq_hr_man_power" model="ir.sequence">
+            <field name="name">HR Manpower</field>
+            <field name="code">hr.manpower</field>
+            <field name="prefix">HR-MAN</field>
+            <field name="padding">4</field>
+        </record>
+        <record id="seq_hr_offer_management" model="ir.sequence">
+            <field name="name">HR OFFER</field>
+            <field name="code">hr.offer.management</field>
+            <field name="prefix">HR-OFFER </field>
+            <field name="padding">4</field>
+        </record>
+         
+    </data>
+</odoo>

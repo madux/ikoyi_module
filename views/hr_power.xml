@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        
+        <record id="hr_manpower_form" model="ir.ui.view">
+            <field name="name">hr.manpower</field>
+            <field name="model">hr.manpower</field>
+            <field name="arch" type="xml">
+                <form string="HR MANPOWER">
+                <header>
+                 
+                    <button name="send_to_memo_hods" type="object" confirm="Are you ready to send to Manager?" states="HR Assitant" class="oe_highlight" string="Send to HODs" groups="hr.group_hr_manager,hr.group_hr_user"/>
+                    <button name="send_to_reminder_to_all" type="object" states="HOD" confirm="Are you ready to send to Executive Members?" class="oe_highlight" string="Send Reminders" groups="hr.group_hr_manager,base.group_system"/>
+                    <!--<button name="send_to_gm" type="object" states='Executive' string="Approve" class="oe_highlight" groups="ikoyi_module.executive_management_ikoyi,base.group_system"/>
+                    --><button name="send_to_hrofficer" type="object" states='HOD' string="Send to HR Officer" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="send_to_hrAssitant2" type="object" states='HR Officer1' string="Send" class="oe_highlight" groups="hr.group_hr_user,hr.group_hr_manager,base.group_system"/>
+                    <button name="send_hrassit_hmmanager" type="object" states='HR Assitant2' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="send_approvebudget_hods" type="object" states='HR manager1' string="Approve" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="print_mandate_pop" type="object" states='HR manager1' string="Print" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                     
+
+                    <button name="button_rejects" type="object" states='HR Assitant2' string="Reject" class="oe_highlight" groups="hr.group_hr_manager,base.group_system"/>
+                    <button name="button_rejects" type="object" states='HR manager1' string="Reject" class="oe_highlight" groups="ikoyi_module.executive_management_ikoyi,base.group_system"/>
+                     
+                    <field name="state" widget="statusbar" statusbar_visible="HR Assitant,HOD,HR Officer1,HR manager1,Complete"/>
+                </header>
+                <sheet>
+
+
+                <div class="oe_title">
+                        <label string="Name "/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                </div>
+
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="1" invisible="1"/>
+                            <field name="employee_id" attrs="{'readonly':[('state','!=','HR Assitant')]}" options="{'no_create': True}"/>
+                            <field name="date_order" attrs="{'readonly':[('state','!=','HR Assitant')]}"/>
+                            <field name="date_deadline" string= "Deadline Date" attrs="{'readonly':[('state','!=','HR Assitant')]}"/>
+ 
+ 
+                            <field name="users_followers" attrs="{'readonly':[('state','!=','HR Assitant')]}" options="{'no_create': True}" widget="many2many_tags"/>
+                             
+                        </group>
+                        <group>
+                            <field name="file_upload_memo" filename="binary_fname" attrs="{'required':[('state','=','HR Assitant')]}"/>
+                            <field name="binary_fname" invisible="1"/>
+
+                            <field name="file_upload_budget" filename="binarybudget_fname" attrs="{'required':[('state','=','HR Officer1')]}"/>
+                            <field name="binarybudget_fname" invisible="1"/>
+ 
+
+                            <field name="file_upload_app_budget" filename="binaryappbudget_fname" attrs="{'required':[('state','=','HR manager1')]}"/>
+                            <field name="binaryappbudget_fname" invisible="1"/>
+   
+                        </group>
+                            <div class="oe_title">
+                                <label string="Notes"/>
+                                    <h1>
+                                        <field name="notes" string ="Note" Placeholder="Add note..."/>
+                                    </h1>
+                                </div>
+                    </group>
+
+                    <notebook>
+
+                        <page string = "Refusal Message">
+                            <field name="description_two" readonly="0"/>
+                           
+                        </page>
+
+                      </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="hr_manpower_tree_view" model="ir.ui.view">
+            <field name="name">hr.manpower.tree</field>
+            <field name="model">hr.manpower</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='refuse'" decoration-info="state in ('HR Officer1')" string="HR MANPOWER">
+                        <field name="name"/>
+                        <field name="employee_id"/>
+                        <field name="date_order"/>
+                        <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="hr_manpower_search_view" model="ir.ui.view">
+           <field name="name">hr.manpower.search</field>
+           <field name="model">hr.manpower</field>
+           <field name="arch" type="xml">
+               <search string="HR MANPOWER">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="HR MANPOWER"/>
+                    <field name="date_order"/>
+                     
+                    <filter string="HR Officer1" domain="[('state','=','HR Officer1')]" help="HR Officer1"/>
+                    <filter string="To Approve" domain="[('state','=','HR manager1')]" help="To Approve" />
+                     
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="human_manpower_dev_action" model="ir.actions.act_window">
+            <field name="name">Human MANPOWERt</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.manpower</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/> <!-- Force empty -->
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to create.
+              </p>
+            </field>
+        </record>
+
+        <menuitem
+            id="hr_manpower_dev_menu"
+            name="HR Manpower"
+            parent="ikoyi_module.hr_plan_id"
+            action="human_manpower_dev_action"
+            sequence="2"/>
+
+    </data>
+</odoo>

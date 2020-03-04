@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	
+	<record id="grnview_report_view" model="ir.ui.view">
+        <field name="name">GRN</field>
+        <field name="model">grn.wizardho</field>
+        <field name="arch" type="xml">
+        	<form>
+        		<group>
+        			<field name="stock_id" />
+        		</group>
+        		<group col="4">
+        			 
+        		</group>
+        		<footer>
+	                <button name="check_report" string="Print and View" type="object" default_focus="1" class="oe_highlight" />
+	                or 
+	                <button string="Cancel" class="oe_link" special="cancel" />
+	            </footer>
+			</form>
+        </field>
+    </record>
+
+	<record id="action_grnview_wizard" model="ir.actions.act_window">
+        <field name="name">View Report</field>
+        <field name="res_model">grn.wizardho</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="grnview_report_view"/>
+        <field name="target">new</field>
+    </record>
+ 
+		<menuitem id="grnview_menu_report" name="View GRN" action="action_grnview_wizard" parent = "stock.menu_stock_warehouse_mgmt" sequence="10"/>
+</odoo>

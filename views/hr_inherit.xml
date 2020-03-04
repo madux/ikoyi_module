@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <menuitem
+            id="hr.menu_hr_root"
+            name="Employees"
+            groups="hr.group_hr_manager,hr.group_hr_user,base.group_user,ikoyi_module.ikoyi_hod,ikoyi_module.ikoyi_hou"
+            web_icon="hr,static/description/icon.png"
+            sequence="75"/>
+
+        <menuitem
+            id="hr.menu_hr_main"
+            name="Human Resources"
+            parent="hr.menu_hr_root"
+            sequence="0"/>
+
+        <menuitem
+            id="hr.menu_hr_reporting_timesheet"
+            name="Reports"
+            parent="hr.menu_hr_root"
+            groups="hr.group_hr_manager,hr.group_hr_user,ikoyi_module.ikoyi_hod,ikoyi_module.ikoyi_hou"
+            sequence="99"/>
+
+        <menuitem
+            id="hr.menu_human_resources_configuration"
+            name="Configuration"
+            parent="hr.menu_hr_root"
+            groups="hr.group_hr_manager"
+            sequence="200"/>
+
+
+       <record model="ir.ui.view" id="hr_employee_inherited_ikoyi" >
+            <field name="name">hr.employee</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='department_id']" position="before">
+                           <field name="unit_emp" invisible="0"/>
+                           <field name="unit_manager" invisible="0"/>
+                           <field name="unit_user" invisible="0"/>
+
+                </xpath>
+
+                <xpath expr="//field[@name='parent_id']" position="attributes">
+                           <attribute name="string">Department Manager</attribute>
+                           <field name="unit_manager" invisible="0"/>
+
+                </xpath>
+
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_dept_inherited_ikoyi" >
+            <field name="name">hr.department</field>
+            <field name="model">hr.department</field>
+            <field name="inherit_id" ref="hr.view_department_form" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='manager_id']" position="before">
+                           <field name="account_recievable" invisible="0"/>
+                           <field name="account_payable" invisible="0"/>
+                           <field name="department_email" invisible="0"/>
+
+                </xpath>
+
+            </field>
+        </record>
+
+
+
+    </data>
+</odoo>

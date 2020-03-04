@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+
+       <report 
+            string="Purchase Order." 
+            id="purchase.action_report_purchase_order" 
+            model="purchase.order" 
+            report_type="qweb-pdf"
+            name="purchase.report_purchaseorder" 
+            file="purchase.report_purchaseorder"
+            menu="True"
+            groups="ikoyi_module.procurement_manager_ikoyi"
+            attachment="(object.state in ('purchase','done'))" 
+        />
+         
+	</data> 
+</odoo>
+
+
+

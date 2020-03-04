@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+
+        <record id="ikoyireturngoods_form" model="ir.ui.view">
+            <field name="name">ikoyi.goods_return</field>
+            <field name="model">ikoyi.goods_return</field>
+            <field name="arch" type="xml">
+                <form string="Goods return Request">
+                    <header>
+                        <button name="Confirm_gro" type="object" class="oe_highlight" string="Confirm" attrs="{'invisible':[('state','not in',['grn'])]}"/>
+                        <button name="view_grn" type="object" class="oe_highlight" string="View GRN" attrs="{'invisible':[('state','not in',['grn','store_manager'])]}"/>
+                     
+                        <button name="button_draft" type="object" states="refuse" class="oe_highlight" string="Set Draft"/>
+                        <button name="send_to_manager" type="object" states="draft" class="oe_highlight" string="Raise GRO" groups="ikoyi_module.inventory_manager_ikoyi,base.group_system"/>
+                        <button name="manager_approve" type="object" states="store_manager" class="oe_highlight" string="Approve" groups="ikoyi_module.inventory_manager_ikoyi,base.group_system"/>
+
+                        <button name="return_goods" type="object" states="update" class="oe_highlight" string="Return Goods" confirm="Click OK ! You will be redirected to the Inventory Reference, kindly click the 'Mark as Todo' button there."/>
+
+                        <button name="storer_officer_receive" type="object" class="oe_highlight" string="Recieve Products" attrs="{'invisible':[('state','not in',['to_vendor'])]}"/>
+
+                        <button name="print_debit_note" type="object" class="oe_highlight" string="Print Debit Note" attrs="{'invisible':[('state','not in',['update'])]}"/>
+
+                        <button name="print_credit_note" type="object" class="oe_highlight" string="Print Credit Note" attrs="{'invisible':[('state','not in',['to_vendor'])]}"/>
+                        <button name="manager_two_approve" type="object" class="oe_highlight" string="Approve" confirm="Click 'Ok' to confirm" groups="ikoyi_module.inventory_manager_ikoyi,base.group_system" attrs="{'invisible':[('state','not in',['manager_two'])]}"/>
+
+                        <button name="view_gro_note" type="object" class="oe_highlight" string="Print GRO Note" attrs="{'invisible':[('state','not in',['draft'])]}"/>
+
+                        <button name="print_viewgro_note" type="object" class="oe_highlight" string="view GRO Note" attrs="{'invisible':[('state','not in',['store_manager'])]}"/>
+ 
+                        
+                        <button name="complete_order" type="object" class="oe_highlight" string="Complete Order" groups="ikoyi_module.inventory_manager_ikoyi,base.group_system" attrs="{'invisible':[('state','not in',['done'])]}"/>
+
+                        
+                        <button name="account_approval" type="object" class="oe_highlight" string="Account Approve" groups="ikoyi_module.account_payable_ikoyi,ikoyi_module.account_boss_ikoyi,base.group_system" attrs="{'invisible':[('state','not in',['account'])]}"/>
+                        <button name="button_rejects" type="object" class="oe_highlight" string="Reject" attrs="{'invisible':[('state','not in',['store_manager','manager_two'])]}"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,store_manager,update,to_vendor,account"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label string="Name "/>
+                            <h1>
+                                <field name="name" readonly="0" placeholder="Description"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="user_id" invisible = "1" readonly="1" string="User"/>
+                                <field name="origin" />
+                                <field name="employee_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" required="1"/>
+                                <field name="stock_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" attrs="{'required':[('state','=','draft')]}"/>
+                                <field name="currency_id" invisible="1" no_create="True"/>
+
+                                <field name="company_id" invisible="1" no_create="True"/>
+                                <!-- attrs="{'required':[('state','=','update')],'readonly':[('state','!=','update')]}"  -->
+                                <!-- attrs="{'required':[('state','=','to_vendor')],'readonly':[('state','!=','to_vendor')]}" -->
+                                <field name="picking_type_id" attrs="{'required':[('state','in',['update', 'manager_two'])]}"/>
+                                <field name="picking_type_code" />
+                                <field name="location" invisible="1" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}"/>
+                                <field name="location_dest" invisible="1" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}"/>
+
+                                <field name="partner_id" invisible="0" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}"/>
+                            </group>
+                            <group>
+                                <field name="branch_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" attrs="{'required':[('state','=','draft')]}" string ="Section"/>
+                                <field name="users_followers" required="0" options="{'no_create': True}" widget="many2many_tags"/>
+                                <field name="date_order" required="1"/>
+                                <field name="file_upload" filename="binary_fname" string="Upload File"/>
+                                <field name="binary_fname" required="0" invisible="1" />
+                                <field name="purchase_order_id" readonly="1" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}"/>
+                                <field name="stock_in_id" readonly= '1' attrs="{'invisible':[('state','not in',['to_vendor','manager_two','account'])]}" />
+
+                                <!--<field name="account_recievable" options="{'no_create': True}" readonly="0"/>
+                            <field name="account_payable" string ="Account Payable" options="{'no_create': True}" readonly="0"/>-->
+
+                                <field name="total_amount_cost" readonly="0"/>
+                            </group>
+                            <div class="oe_title">
+                                <label string="Total Items to Return" />
+                                <h1>
+                                    <field name="total_amount" readonly="0" invisible="1"/>
+                                </h1>
+                            </div>
+                        </group>
+                        <notebook>
+
+
+                            <page string = "Product Lines">
+                                <separator colspan="4" string="Items"/>
+                                <field name="order_line" required="1" readonly="0">                                    <!--context="{'default_location':location_dest, 'default_location_dest':location}">-->
+                                    <tree string="Product Lines" editable="bottom">
+                                        <field name="order_id" invisible="1"/>
+                                        <field name="product_id" required="1"/>
+                                        <field name="label" invisible="1"/>
+
+
+                                        <field name="location" required="0"/>
+                                        <field name="location_dest" required="0" invisible="0"/>
+
+                                        <field name="qty" required="1"/>
+
+                                        <field name="initial_qty" readonly="1"/>
+                                        <field name="receive_qty"/>
+                                        <field name="remain_qty"/>
+
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string = "Refused Message Box">
+                                <field name="description_two" required="0" readonly="0" placeholder="Please Add Reason(s) ..." colspan="4"/>
+
+                            </page>
+
+                        </notebook>
+                        <field name="notes" class = "oe_inline" placeholder="Add note... "/>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="ikoyigro_return_tree_view" model="ir.ui.view">
+            <field name="name">ikoyi.goods_return</field>
+            <field name="model">ikoyi.goods_return</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='refuse'" decoration-info="state in ('draft','done')" string="GRO">
+                    <field name="name" invisible="1" readonly="1"/>
+                    <field name="employee_id"/>
+                    <field name="branch_id" invisible="1"/>
+                    <field name="stock_id" invisible="1" readonly="1"/>
+                    <field name="location"/>
+                    <field name="date_order"/>
+                    <field name="total_amount"/>
+                    <field name="state"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <!--<record id="main_return_back_wizard" model="ir.ui.view">
+            <field name="name">Return Request</field>
+            <field name="model">main.return</field>
+            <field name="arch" type="xml">
+                <form String="Reason for Returning">
+                    <group>
+
+   
+                        <group>
+                             <field name="resp" readonly="1" string = "Initiator" options="{&quot;limit&quot;: 1,&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" invisible="0"/>
+                            <field name="date"/>
+                           
+                        </group>
+                        <group>
+                           
+                            <field name="number" readonly="1" invisible="1"/>
+                            <field name="state" invisible="1" readonly="1"/>
+                            <field name="users_followers" widget="many2many_tags" options="{&quot;limit&quot;: 1,&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}"/>
+                        </group>
+                            <field name="reason" placeholder="Please Add Reason(s) ..." colspan="4"/>
+                    <footer>
+                        <button name="post_back" type="object" string="Return" class="oe_highlight"/>
+                            <button string="Cancel" class="oe_link" special="cancel"/>
+                        </footer>
+                    </group>
+                </form>
+            </field>
+        </record>-->
+
+        <record id="goods_return_search_view" model="ir.ui.view">
+            <field name="name">goods_return.search</field>
+            <field name="model">ikoyi.goods_return</field>
+            <field name="arch" type="xml">
+                <search string="GRO Request">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="GRO name"/>
+                    <field name="date_order"/>
+
+                    <filter string="Draft" domain="[('state','=','draft')]" help="Draft"/>
+                    <filter string="Manager Approval" domain="[('state','=','store_manager')]" help="Request To Approve" />
+                    <field name="total_amount"/>
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="ikoyi_gro_return_action" model="ir.actions.act_window">
+            <field name="name">GRO</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ikoyi.goods_return</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to create GRO.
+                </p>
+            </field>
+        </record>
+
+        <record id="ikoyi_gro_return_public" model="ir.actions.act_window">
+            <field name="name">Good Return</field>
+            <field name="res_model">ikoyi.goods_return</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state','in',['account','done','refuse'])]</field>
+            <!--<field name="context">{'default_voucher_type': 'purchase', 'voucher_type': 'purchase'}</field>-->
+            <field name="view_id" eval="ikoyigro_return_tree_view"/>
+            <!--<field name="search_view_id" eval="view_voucher_filter_vendor"/>-->
+            <field name="target">current</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to View GRO.
+                </p>
+                <p>
+                When the GRO has been confirmed, the account payable comes here to post
+                </p>
+            </field>
+        </record>
+
+        <record id="register_journal_item_form" model="ir.ui.view">
+            <field name="name">Register Journal Item</field>
+            <field name="model">ikoyi.journal</field>
+            <field name="arch" type="xml">
+                <form String="Register Journal">
+                    <header>
+
+                    </header>
+                    <group>
+                        <group>
+
+                            <field name="partner_id" required="1"/>
+                            <field name="bank" required="1"/>
+                            <field name="ref_id" groups= "base.group_system" readonly="0" invisible="0"/>
+                            <field name="model_id" groups= "base.group_system" readonly="0" invisible="0"/>
+
+                            <field name="revenue_account_pay" string="Account Payable" attrs="{'invisible':[('refund','!=',True)],'required':[('refund','=',True)]}"/>
+                            <field name="revenue_account_rec" string="Account Receivable" attrs="{'invisible':[('refund','=',True)],'required':[('refund','!=',True)]}"/>
+
+
+                        </group>
+                        <group>
+                            <field name="date" required="1"/>
+                            <field name="amount_to_pay" widget="monetary"/>
+                            <field name="remarks" placeholder="Add Remarks"/>
+                            <field name="refund" string="Vendor Refund"/>
+                        </group>
+                        <footer>
+                            <button name="button_pay" type="object" string="Pay" class="oe_highlight"/>
+ or
+                            <button name ="button_cancel" string="Cancel" class="oe_link"/>
+
+                        </footer>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <menuitem name="Goods Return" id="menu_for_ikoyi_groreturn_main" sequence="9" action ="ikoyi_gro_return_action" parent ="stock.menu_stock_warehouse_mgmt"/>
+
+
+        <menuitem name="Goods Return" id="menu_ikoyigromain_id" sequence="4" parent ="ikoyi_module.ikoyi_material_request_id" groups="ikoyi_module.account_payable_ikoyi,ikoyi_module.account_boss_ikoyi,base.group_system"/>
+        <menuitem name="GRO" id="menu_ikoyigrosub_id" sequence="1" parent ="menu_ikoyigromain_id" action="ikoyi_gro_return_public"/>
+
+    </data>
+</odoo>

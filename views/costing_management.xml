@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+
+        <record id="cost_management_form" model="ir.ui.view">
+            <field name="name">cost.management</field>
+            <field name="model">cost.management</field>
+            <field name="arch" type="xml">
+                <form string="Cost Management">
+                    <header>
+                        <!-- <button name="Confirm_gro" type="object" class="oe_highlight" string="Confirm" attrs="{'invisible':[('state','not in',['grn'])]}"/>
+                        <button name="view_grn" type="object" class="oe_highlight" string="View GRN" attrs="{'invisible':[('state','not in',['grn','store_manager'])]}"/> -->
+                     
+                        
+                        <!-- <field name="state" widget="statusbar" statusbar_visible="draft,store_manager,update,to_vendor,account"/> -->
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label string="Name "/>
+                            <h1>
+                                <field name="name" readonly="0" placeholder="Description"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="user_id" invisible = "1" readonly="1" string="User"/>
+                            </group>
+                            <group>
+                                <!-- <field name="branch_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" attrs="{'required':[('state','=','draft')]}" string ="Section"/>
+                                 -->
+                            </group>
+                            <!-- <div class="oe_title">
+                                <label string="Total Items to Return" />
+                                <h1>
+                                    <field name="total_amount" readonly="0" invisible="1"/>
+                                </h1>
+                            </div> -->
+                        </group>
+                        <!-- <notebook>
+                            <page string = "Product Lines">
+                                <separator colspan="4" string="Items"/>
+                                <field name="order_line" required="1" readonly="0">                        
+                                    <tree string="Product Lines" editable="bottom">
+                                        <field name="order_id" invisible="1"/>
+                                        <field name="product_id" required="1"/>
+                                        <field name="label" invisible="1"/>
+
+
+                                        <field name="location" required="0"/>
+                                        <field name="location_dest" required="0" invisible="0"/>
+
+                                        <field name="qty" required="1"/>
+
+                                        <field name="initial_qty" readonly="1"/>
+                                        <field name="receive_qty"/>
+                                        <field name="remain_qty"/>
+
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string = "Refused Message Box">
+                                <field name="description_two" required="0" readonly="0" placeholder="Please Add Reason(s) ..." colspan="4"/>
+
+                            </page>
+
+                        </notebook>
+                        <field name="notes" class = "oe_inline" placeholder="Add note... "/> -->
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="Cost_management_tree_view" model="ir.ui.view">
+            <field name="name">cost.management</field>
+            <field name="model">cost.management</field>
+            <field name="arch" type="xml">
+                <tree string="Costing"> 
+                <!-- decoration-muted="state=='refuse'" decoration-info="state in ('draft','done')" -->
+                    <field name="name" invisible="1" readonly="1"/>
+                    <field name="user_id"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="cost_management_search_view" model="ir.ui.view">
+            <field name="name">cost.management.search</field>
+            <field name="model">cost.management</field>
+            <field name="arch" type="xml">
+                <search string="Costing Management">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Description"/>
+                    <field name="user_id"/>
+
+                    <!-- <filter string="Draft" domain="[('state','=','draft')]" help="Draft"/>
+                    <filter string="Manager Approval" domain="[('state','=','store_manager')]" help="Request To Approve" />
+                    <field name="total_amount"/>
+                    <field name="state"/> -->
+                </search>
+            </field>
+        </record>
+
+
+        <record id="costingmanagement_action" model="ir.actions.act_window">
+            <field name="name">Costing</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">cost.management</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+            <field name="search_view_id" eval="False"/>
+            <field name="view_id" eval="False"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to create Record.
+                </p>
+            </field>
+        </record>
+
+
+        <!-- <act_window id="stock_product_ikoyi_action"
+                name="Stock Quantity"
+                res_model="stock.quant"
+                view_id="product.product_product_tree_view"
+                view_mode="tree,form"/> -->
+
+        <menuitem name="Costing" id="costing_managment_menu" sequence="5" action ="costingmanagement_action" web_icon="ikoyi_module,static/description/iconmain.png"/>
+
+        <!-- <menuitem id="view_stocks_quantity_ikoyi"
+                action="stock_product_ikoyi_action" name="Stock Quantity" parent="costing_managment_menu"
+                sequence="2"/> -->
+
+	
+	<record id="costingwizard_report_view" model="ir.ui.view">
+        <field name="name">Costing Report</field>
+        <field name="model">costing.wizard</field>
+        <field name="arch" type="xml">
+        	<form>
+        		<group>
+        			<field name="salesperson_id" required="0"/>
+        		</group>
+        		<group col="4">
+                    <field name="location_ids" required="1" widget="many2many_tags"/>
+        			<field name="date_from" />
+        			<field name="date_to" />
+        		</group>
+        		<footer>
+	                <button name="check_report" string="Print" type="object" default_focus="1" class="oe_highlight" />
+	                or 
+	                <button string="Cancel" class="oe_link" special="cancel" />
+	            </footer>
+			</form>
+        </field>
+    </record>
+
+	<record id="action_costing_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Wizard Report</field>
+        <field name="res_model">costing.wizard</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="costingwizard_report_view"/>
+        <field name="target">new</field>
+    </record>
+
+	<menuitem id="costing_menu_report" name="Costing Reports" parent="ikoyi_module.costing_managment_menu" sequence="10"/>
+	<menuitem id="costing_menu_2_report" name="Print Costing" action="action_costing_wizard" parent="costing_menu_report" sequence="10"/>
+ </data>
+</odoo>

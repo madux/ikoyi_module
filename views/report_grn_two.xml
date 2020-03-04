@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report
+            id="action_report_report_grnx"
+            model="report.ikoyi_module.report_grnx"
+            string="View GRN"
+            report_type="qweb-pdf"
+            name="ikoyi_module.report_grnx"
+            file="ikoyi_module.report_grnx"
+            />
+    </data>
+</odoo>
