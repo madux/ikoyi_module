@@ -16,8 +16,8 @@ class PackOperation(models.Model):
 class ProductProduct(models.Model):
     _inherit = "product.template"
     
-    picking_source_location_id = fields.Many2one('stock.location',  string='Picking Source Location', required=True)#, related='picking_id.location_id')
-    picking_destination_location_id = fields.Many2one('stock.location',  string='Picking Destination', required=True)#, related='picking_id.location_dest_id')
+    picking_source_location_id = fields.Many2one('stock.location',  string='Picking Source Location')#, related='picking_id.location_id')
+    picking_destination_location_id = fields.Many2one('stock.location',  string='Picking Destination',)#, related='picking_id.location_dest_id')
     
 
 class ReturnPicking(models.TransientModel):

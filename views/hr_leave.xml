@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+       <record model="ir.ui.view" id="hr_holidays_form_inherited" >
+            <field name="name">hr.holidays</field>
+            <field name="model">hr.holidays</field>
+            <field name="inherit_id" ref="hr_holidays.edit_holiday_new"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                        <field name="instant_bonus"/>
+                </field>
+
+                <xpath expr="//field[@name='department_id']" position="after">
+                       <field name="is_senior_manager" states="confirm"/>  
+                </xpath>
+
+                <xpath expr="//button[@name='action_approve']" position="attributes">
+                    <attribute name="groups">ikoyi_module.ikoyi_hod</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_validate']" position="attributes">
+                    <attribute name="groups">ikoyi_module.gm_ikoyi</attribute>
+                </xpath>
+                 
+
+                <xpath expr= "//button[@name='action_confirm']" position="after">
+                    <button string="Approve" name="action_unit_confirm" groups = "ikoyi_module.ikoyi_hou" states="unit_manager" type="object" class="oe_highlight"/>
+                    <button string="Approve" name="action_hod_confirm" groups = "ikoyi_module.ikoyi_hod" states="hod" type="object" class="oe_highlight"/>
+
+                    
+                </xpath>
+ 
+            </field>
+
+
+        </record> 
+
+        <record model="ir.ui.view" id="hr_holidays_status_form_inherited" >
+            <field name="name">hr.holidays.status</field>
+            <field name="model">hr.holidays.status</field>
+            <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='name']" position="after">
+                        <field name="is_annual" required="0"/>
+                </xpath>
+ 
+            </field>
+        </record> 
+
+
+    </data>
+</odoo>

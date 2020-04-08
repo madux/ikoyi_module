@@ -27,7 +27,6 @@
                 <t t-foreach="docs" t-as="o">
                     <t t-call="report.external_layout">
                         <div class="page">
-
                             <div class="row">
                                 <h2>
                                     <span>
@@ -49,7 +48,35 @@
                                      <strong>GRN Number:<span t-field="o.stock_id.name"/> </strong><br/>-->
                                       <strong>Date:<span t-raw="time.strftime('%Y-%m-%d')"/> </strong><br/>
                                        <!--<strong>Store Location:<span t-field="o.location.name"/> </strong><br/>-->
-                                </div>
+                                </div><br/>
+								
+                            </div><br/>
+							<div class="row">
+                                <div class="col-xs-4" style="font-size: 17px;">
+									<strong>The Manager</strong><br/>
+                                    <span style="font-size: 17px;" t-field="o.vendor_bank.name"/><br/>
+                                    <span style="font-size: 17px;" t-field="o.vendor_bank.street"/><br/>
+                                    <span style="font-size: 17px;" t-field="o.vendor_bank.city"/><br/>
+                                    <span style="font-size: 17px;" t-field="o.vendor_bank.state"/><br/>
+									<br/><br/>
+                                    <h5><strong>Dear Sir/Madam, </strong></h5>
+                                </div><br/>
+								
+							</div>
+							<br/><br/>
+							<div class="col-xs-12">
+                                <h4 style="text-align:center">
+                                    <u><strong>PAYMENT OF VENDORS VIA <span t-field="o.vendor_bank.name"/></strong></u>
+                                </h4>
+                            </div>
+                            <br/>
+                            <div class="col-xs-12">
+                                <h5>
+                                    <p>Please credit the under listed accounts individually and debit our operations account number <span t-field="o.vendor_account.acc_number"/> accordingly;</p>
+                                </h5>
+                                <br/>
+						
+								
                                 <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
                                    <strong></strong><br/>
                                 </div>
@@ -59,12 +86,10 @@
                                     <thead>
                                         <tr>
                                             <th><strong>S/N</strong></th>
-                                            <th><strong>Customer</strong></th>
-                                            <th><strong>Bank</strong></th>
-                                            <th><strong>Account</strong></th>
-                                            <th><strong>Reference</strong></th>
-                                            <th><strong>Journal</strong></th>
-                                            <th><strong>Amount</strong></th> 
+                                            <th><strong>VENDOR</strong></th>
+                                            <th><strong>BANK</strong></th>
+                                            <th><strong>ACCOUNT</strong></th>
+                                            <th><strong>AMOUNT</strong></th> 
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -82,12 +107,12 @@
                                             <td style="white-space: text-nowrap;">
                                                 <span t-esc="o.vendor_account.acc_number" />
                                             </td>
-                                            <td style="white-space: text-nowrap;">
+                                            <!--<td style="white-space: text-nowrap;">
                                                 <span t-esc="o.purchase_id.name" />
                                             </td>
                                             <td style="white-space: text-nowrap;">
                                                 <span t-esc="o.pay_account.name" />
-                                            </td>
+                                            </td>-->
                                             
                                             
                                             <td style="white-space: text-nowrap;">
@@ -95,7 +120,7 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                </table><p/><p/><p/>
+                                </table><p/><p/><p/><p/><p/><p/>
                                 <div class="row">
                                 <div class="col-xs-3" style="font-size: 17px;">
                                     <strong>Authorized Signatory:</strong><p/><p/>
@@ -149,46 +174,97 @@
                                      <strong>GRN Number:<span t-field="o.stock_id.name"/> </strong><br/>-->
                                       <strong>Date:<span t-raw="time.strftime('%Y-%m-%d')"/> </strong><br/>
                                        <!--<strong>Store Location:<span t-field="o.location.name"/> </strong><br/>-->
-                                </div>
+                                </div><br/>
+                                <div class="row">
+                                   <div class="col-xs-4" style="font-size: 17px;">
+									<!--<strong>The Manager</strong><br/>-->
+                                    <span style="font-size: 17px;" t-field="o.name.name"/><br/>
+                                    <span style="font-size: 17px;" t-field="o.name.street"/><br/>
+                                    <span style="font-size: 17px;" t-field="o.name.website"/><br/>
+									<br/><br/>
+                                    <!--<h5><strong>Dear Sir/Madam, </strong></h5>-->
+                                   </div><br/>
+								
+				                </div>
+
                                 <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
                                    <strong></strong><br/>
                                 </div>
                             </div><br/><br/>
                                 <table class="table table-condensed">
                                     <thead>
-                                        <tr>
-                                            <th><strong>S/N</strong></th>
-                                            <th><strong>Customer</strong></th>
-                                            <th><strong>Bank</strong></th>
-                                            <th><strong>Account</strong></th>
-                                             
-                                            <th><strong>Amount</strong></th>
-                                        
+                                        <tr>          
+                                            <th><strong>INVOICE NUMBER</strong></th>
+                                            <th><strong>INVOICE DATE</strong></th>
+                                            <th><strong>INVOICE DETAILS</strong></th>
+                                            <th><strong>AMOUNT REQUESTED(INCL. VAT)</strong></th>
+                                            <th><strong>TAX</strong></th>
+                                            <!--<th><strong>Reference</strong></th>
+                                            <th><strong>Journal</strong></th>-->
+                                            <th><strong>NET REQUEST</strong></th> 
                                         </tr>
                                     </thead>
+                                  <t t-foreach="o.invoice_ids.invoice_line_ids" t-as="line">
                                     <tbody>
                                     <tr> 
                                         <!--<tr t-foreach="o" t-as="a">-->
                                             <td>
-                                                <span t-esc="o.id" />
+                                                <span t-esc="o.invoice_ids.number" />
                                             </td>
                                             <td>
-                                                <span t-esc="o.name.name" />
+                                                <span t-esc="o.invoice_ids.date_invoice" />
                                             </td>
-                                            <td style="white-space: text-nowrap;">
-                                                <span t-esc="o.vendor_bank.name" />
+                                            <td>
+                                                <span t-esc="line.name" />
                                             </td>
-                                            <td style="white-space: text-nowrap;">
+                                            <!--<td style="white-space: text-nowrap;">
                                                 <span t-esc="o.vendor_account.acc_number" />
+                                            </td>-->
+                                            <td>
+                                                <span t-field="o.invoice_ids.amount_total" t-options='{"widget": "monetary", "display_currency": o.create_uid.company_id.currency_id}' />
                                             </td>
-                                             
-                                            
+                                            <!--<td style="white-space: text-nowrap;">
+                                                <span t-esc="o.purchase_id.name" />
+                                            </td>
                                             <td style="white-space: text-nowrap;">
-                                                <span t-field="o.pay_amount" t-options='{"widget": "monetary", "display_currency": o.create_uid.company_id.currency_id}' />
+                                                <span t-esc="o.pay_account.name" />
+                                            </td>-->
+                                            <td>
+                                                <span t-field="o.invoice_ids.amount_tax" t-options='{"widget": "monetary", "display_currency": o.create_uid.company_id.currency_id}' />
+                                            </td>
+                                            <td style="white-space: text-nowrap;">
+                                                <span t-field="o.invoice_ids.pay_amount" t-options='{"widget": "monetary", "display_currency": o.create_uid.company_id.currency_id}' />
                                             </td>
                                         </tr>
                                     </tbody>
+                                 </t>
                                 </table>
+                                <div class="row" name="total" style="font-size: 14px;">
+                                    <div class="col-xs-4 pull-left">
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr>          
+                                                    <th><strong>TAX DESCRIPTION</strong></th>
+                                                    <th><strong>AMOUNT</strong></th>
+                                                    
+                                                </tr>
+                                            </thead>
+                                        <t t-foreach="o.invoice_ids.tax_line_ids" t-as="a">
+                                            <tbody>
+                                            <tr> 
+                                                <!--<tr t-foreach="o" t-as="a">-->
+                                                    <td>
+                                                        <span t-esc="a.name"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-esc="'{0:,.2f}'.format(int(a.amount)) "/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </t>
+                                        </table>
+                                    </div>
+                                </div>    
 							</div>
                             <div class="row">
                                 <div class="col-xs-3" style="font-size: 17px;">

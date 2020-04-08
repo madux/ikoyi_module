@@ -17,17 +17,50 @@
                             </p>
                         </div>
                     </div>
+                    
+                    
+                    <div class="row">
+                        <div class="col-xs-4" style="font-size: 17px;">
+                            <strong>The Manager</strong><br/>
+                            <span style="font-size: 17px;" t-field="docs.ikoyi_bank.bank_id"/><br/>
+                            <span style="font-size: 17px;" t-field="docs.ikoyi_bank.address"/><br/>
+                            <span style="font-size: 17px;" t-field="docs.ikoyi_bank.city"/><br/>
+                            <span style="font-size: 17px;" t-field="docs.ikoyi_bank.state"/><br/>
+                            <br/><br/>
+                            <h5><strong>Dear Sir/Madam, </strong></h5>
+                        </div><br/>
+                        
+                    </div>
+                    <br/><br/>
+                    <div class="col-xs-12">
+                        <h4 style="text-align:center">
+                            <u><strong>PAYMENT OF VENDORS VIA <span t-field="docs.ikoyi_bank.bank_id"/></strong></u>
+                        </h4>
+                    </div>
+                    <br/>
+                    <div class="col-xs-12">
+                        <h5>
+                            <p>Please credit the under listed accounts individually and debit our operations account number <span t-field="docs.ikoyi_bank.acc_number"/> accordingly;</p>
+                        </h5>
+                        <br/>
+                
+                        
+                        <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                        <strong></strong><br/>
+                        </div>
+                    </div>
+                   
 
                     <table class="table table-condensed">
                         <thead>
                             <tr>
                                <th>S/N</th>
-                                <th>Customer</th>
-                                <th><strong>Bank</strong></th>
-                                <th><strong>Account</strong></th>
-                                <th>Reference</th>
+                                <th>VENDOR</th>
+                                <th><strong>BANK</strong></th>
+                                <th><strong>ACCOUNT</strong></th>
+                                <!--<th>Reference</th>
                                 <th>Journal</th>
-                                <th>QTY</th>
+                                <th>QTY</th-->
                                 <th>Amount</th>
                                
                             </tr>
@@ -46,7 +79,7 @@
                                 <td style="white-space: text-nowrap;">
                                     <span t-esc="a.vendor_account.acc_number" />
                                 </td>
-                                <td style="white-space: text-nowrap;">
+                                <!--<td style="white-space: text-nowrap;">
                                     <span t-esc="a.purchase_id.name" />
                                 </td>
                                 <td style="white-space: text-nowrap;">
@@ -54,7 +87,7 @@
                                 </td>
                                 <td style="white-space: text-nowrap;">
                                     <span t-esc="a.product_qty" />
-                                </td>
+                                </td>-->
                                  
                                 <td style="white-space: text-nowrap;">
                                     <span t-field="a.pay_amount" t-options='{"widget": "monetary", "display_currency": a.create_uid.company_id.currency_id}' />
@@ -62,6 +95,32 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div class="row">
+                        <div class="col-xs-4" style="font-size: 18px; align-center">
+                            <p> Thanks for your co-operation. </p>
+                        </div>
+                    </div>
+                    <p></p>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p style="font-size: 17px;">Yours faithfully,<br/>
+                            <strong>FOR: IKOYI CLUB 1938</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-3" style="font-size: 17px;">
+                            <strong>.......................</strong><br/>
+                            <strong>AUTHORIZED SIGNATORY</strong>
+
+                        </div>
+                        <div class="col-xs-4 pull-right mt8" name ="right_name" style="font-size: 17px;">
+                            <strong>.......................</strong><br/>
+                            <strong>AUTHORIZED SIGNATORY</strong>
+                        </div>
+                                
+                    </div>
+                    
                 </div>
             </t>
         </t>

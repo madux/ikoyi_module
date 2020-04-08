@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report 
+            id="action_report_hotelx"
+            model="report.hotels_report.report_hotelx"
+            string="Hotel report"
+            report_type="qweb-pdf"
+            name="hotels_report.report_hotelx"
+            file="hotels_report.report_hotelx"
+            />
+    </data>
+</odoo>

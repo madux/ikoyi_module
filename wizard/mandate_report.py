@@ -15,6 +15,11 @@ class MandateWizard(models.TransientModel):
         string='Vendor Bank',
         readonly=False)
 
+    ikoyi_bank = fields.Many2one(
+        'res.partner.bank',
+        string='Company Bank',
+        readonly=False, required=True)
+
     @api.multi
     def check_report(self):
         data = {}

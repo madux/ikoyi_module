@@ -43,6 +43,7 @@
         'reports/purchase_print.xml',
         'views/report_grn_two.xml',
         'views/report_grn.xml',
+        # 'views/hr_leave.xml',
         # 'reports/mandate_report_view.xml',
         'wizard/mandate_report_view.xml',
         'wizard/view_grn_wizard_view.xml',
