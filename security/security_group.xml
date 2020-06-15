@@ -14,6 +14,12 @@
             <field name="users" eval="[(4, ref('base.user_root'))]"/>
         </record>
 
+        <record id="honorary_treasurer_ikoyi" model="res.groups">
+            <field name="name">Honorary treasurer</field>
+            <field name="category_id" ref="category_ikoyi_general_club"/>
+            <field name="users" eval="[(4, ref('base.user_root'))]"/>
+        </record>
+
         <record id="vice_chairman_ikoyi" model="res.groups">
             <field name="name">Vice Chairman</field>
             <field name="category_id" ref="category_ikoyi_general_club"/>
@@ -56,6 +62,17 @@
         </record>
         <record id="ikoyi_hod" model="res.groups">
             <field name="name">HOD</field>
+            <field name="category_id" ref="category_ikoyi_general_club" />
+            <field name="users" eval="[(4, ref('base.user_root'))]"/>
+        </record>
+
+        <record id="sectional_officer_ikoyi" model="res.groups">
+            <field name="name">Sectional Officer Group</field>
+            <field name="category_id" ref="category_ikoyi_general_club" />
+            <field name="users" eval="[(4, ref('base.user_root'))]"/>
+        </record>
+        <record id="budget_officer_ikoyi" model="res.groups">
+            <field name="name">Budget Officer</field>
             <field name="category_id" ref="category_ikoyi_general_club" />
             <field name="users" eval="[(4, ref('base.user_root'))]"/>
         </record>

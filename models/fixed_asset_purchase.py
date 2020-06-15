@@ -34,7 +34,7 @@ class Ikoyi_FIXED_ASSET_Request(models.Model):
     }
 
     states = [
-        ('draft', 'draft'),
+        ('draft', 'Draft'),
         ('cost_office', 'Costing'),
 
         ('store_manager_one', 'Store Manager'),
@@ -106,6 +106,7 @@ class Ikoyi_FIXED_ASSET_Request(models.Model):
         comodel_name="purchase.order",
         string='Purchase Order')
 
+    
     company_id = fields.Many2one(
         'res.company',
         'Company',
@@ -247,52 +248,63 @@ class Ikoyi_FIXED_ASSET_Request(models.Model):
         for your approval. Please kindly Review. <br/> Regards".format(self.name, self.write_uid.name)
 
         self.mail_sending(email_from, group_user_id, extra, bodyx)
-
-        self.write({'state': 'finance_manager_two'})
-
-    @api.multi
-    # finance_manager_two  grp account_boss_ikoyi
-    def Finance_admin_to_GMTWO(self):
-        email_from = self.env.user.email
-        extra = self.employee_id.work_email
-
-        group_user_id = self.env.ref('ikoyi_module.gm_ikoyi').id
-        bodyx = "Dear Sir/Madam, <br/>A Local Purchase Order have been raised for the Fixed asset request with \
-        reference Number: {} and is waiting \
-        for your approval. Please kindly Review. <br/> Regards".format(self.name)
-
-        self.mail_sending(email_from, group_user_id, extra, bodyx)
-        # self.procure_btn()
-        self.write({'state': 'general_manager_two'})
-
-    @api.multi
-    def GMTWO_Procurement(self):  # general_manager_two  grp account_boss_ikoyi
-        email_from = self.env.user.email
-        extra = self.employee_id.work_email
-
-        group_user_id = self.env.ref(
-            'ikoyi_module.procurement_manager_ikoyi').id
-        bodyx = "Dear Sir/Madam, <br/>A Local Purchase Order have been raised for the Fixed asset request with \
-        reference Number: {} and is waiting \
-        for your approval. Please kindly Review. <br/> Regards".format(self.name)
-
-        self.mail_sending(email_from, group_user_id, extra, bodyx)
-        # self.procure_btn()
-        self.write({'state': 'procurement_manager_two'})
-
-    @api.multi
-    # general_manager_two  grp account_boss_ikoyi
-    def Procurement_to_ConfirmS(self):
-        email_from = self.env.user.email
-        extra = self.employee_id.work_email
-
-        group_user_id = self.env.ref('ikoyi_module.inventory_manager_ikoyi').id
-        bodyx = "Dear Sir/Madam, <br/>A Local Purchase Order have been confirm for the Purchase of Fixed asset items with \
-        reference Number: {}. Please kindly Notifiy us if the goods are recieved. <br/> Regards".format(self.name)
-
-        self.mail_sending(email_from, group_user_id, extra, bodyx)
         self.procure_btn()
+        self.deduction_on_budget()
         self.write({'state': 'done'})
+
+    def deduction_on_budget(self):
+        lines = self.mapped('order_line')
+        for rec in lines:
+            budget_lines = self.env['department_budget.line'].search([('capex_num', '=', rec.capex_num.id)], limit=1)
+            budget_lines.write({
+                'paid_amount': budget_lines.paid_amount + rec.total,
+                'qty_used': budget_lines.qty_used + rec.qty
+            })
+        
+
+    # @api.multi
+    # # finance_manager_two  grp account_boss_ikoyi
+    # def Finance_admin_to_GMTWO(self):
+    #     email_from = self.env.user.email
+    #     extra = self.employee_id.work_email
+
+    #     group_user_id = self.env.ref('ikoyi_module.gm_ikoyi').id
+    #     bodyx = "Dear Sir/Madam, <br/>A Local Purchase Order have been raised for the Fixed asset request with \
+    #     reference Number: {} and is waiting \
+    #     for your approval. Please kindly Review. <br/> Regards".format(self.name)
+
+    #     self.mail_sending(email_from, group_user_id, extra, bodyx)
+    #     # self.procure_btn()
+    #     self.write({'state': 'general_manager_two'})
+
+    # @api.multi
+    # def GMTWO_Procurement(self):  # general_manager_two  grp account_boss_ikoyi
+    #     email_from = self.env.user.email
+    #     extra = self.employee_id.work_email
+
+    #     group_user_id = self.env.ref(
+    #         'ikoyi_module.procurement_manager_ikoyi').id
+    #     bodyx = "Dear Sir/Madam, <br/>A Local Purchase Order have been raised for the Fixed asset request with \
+    #     reference Number: {} and is waiting \
+    #     for your approval. Please kindly Review. <br/> Regards".format(self.name)
+
+    #     self.mail_sending(email_from, group_user_id, extra, bodyx)
+    #     # self.procure_btn()
+    #     self.write({'state': 'procurement_manager_two'})
+
+    # @api.multi
+    # # general_manager_two  grp account_boss_ikoyi
+    # def Procurement_to_ConfirmS(self):
+    #     email_from = self.env.user.email
+    #     extra = self.employee_id.work_email
+
+    #     group_user_id = self.env.ref('ikoyi_module.inventory_manager_ikoyi').id
+    #     bodyx = "Dear Sir/Madam, <br/>A Local Purchase Order have been confirm for the Purchase of Fixed asset items with \
+    #     reference Number: {}. Please kindly Notifiy us if the goods are recieved. <br/> Regards".format(self.name)
+
+    #     self.mail_sending(email_from, group_user_id, extra, bodyx)
+    #     # self.procure_btn()
+    #     self.write({'state': 'done'})
 
     def mail_sending(self, email_from, group_user_id, extra, bodyx):
         mail_from = self.env.user.name
@@ -413,7 +425,7 @@ class Ikoyi_FIXED_ASSET_Request(models.Model):
                     purchase_order_id.send_recieve_account_mail(
                         purchase_order_id.id, namex)
                 return self.write(
-                    {'purchase_order_id': purchase_order_id.id, 'state': 'done'})
+                    {'purchase_order_id': purchase_order_id.id, 'state': 'draft'})
 
 
 class Fixed_Asset_Line(models.Model):
@@ -447,6 +459,9 @@ class Fixed_Asset_Line(models.Model):
         index=True,
         required=True,
         ondelete='cascade')
+
+    
+
     warehouse = fields.Many2one(
         'stock.warehouse',
         'Warehouse',
@@ -464,8 +479,8 @@ class Fixed_Asset_Line(models.Model):
         string='UOM',
         default=change_uom,
         required=True)
-    qty = fields.Float('Requested Qty', default=1.0, )
-    rate = fields.Float('Request Rate', related='product_id.list_price')
+    qty = fields.Float('Qty', default=1.0, )
+    rate = fields.Float('Rate', related='product_id.list_price')
     total = fields.Float('Total', compute='get_total')
     date_planned = fields.Datetime(
         string='Exp. Date', required=False, index=True)
@@ -473,14 +488,38 @@ class Fixed_Asset_Line(models.Model):
     actual_price = fields.Float(
         'Actual Price',
         related='product_id.list_price')
-
     branch_id = fields.Many2one(
         'res.branch',
         string="Branch",
         default=lambda self: self.env.user.branch_id.id)
     actual_qty = fields.Float('Stock Qty')
-
+    account_id = fields.Many2one(
+		'account.account', string='Fixed Assets', required=False)
+    capex_num = fields.Many2one(
+		'capex.number', string='Capex No')
     #move_ids = fields.One2many('stock.move', 'purchase_line_id', string='Reservation', readonly=True, ondelete='set null', copy=False)
+
+    @api.onchange('total','qty')
+    def check_capex_budget(self):
+        if self.total >= 1:
+            balances, qtys, apprv = 0.0, 0.0, 0.0
+            dept_budget_line= self.env['department_budget.line'].search([('capex_num','=', self.capex_num.id), 
+            ('department_line_m2o.state','=', 'done')]) 
+            if dept_budget_line:
+                for record in dept_budget_line:
+                    balances += record.balance
+                    qtys += record.qty_used
+                    apprv += record.quantity_approved
+                    # if dept_budget_line.budget_type == "capital":
+            if self.total > balances:
+                raise ValidationError('You are trying to use more than the designated budget'+ str(balances))
+            qty_diff = apprv - qtys
+            if self.qty > qty_diff:
+                raise ValidationError('You are trying to use more than the Approved Budget Qty'+ str(qtys))
+            # else:
+            #     raise ValidationError('Good to go'+ str(qtys))
+
+        # lines = [rec.balance for rec in dept_budget if rec.capex_num == self.capex_num and rec.account_id == self.account_id]
 
     @api.onchange('location')
     def domain_product_location(self):
@@ -500,39 +539,25 @@ class Fixed_Asset_Line(models.Model):
                     domain = {'product_id': [('id', 'in', products)]}
             return {'domain': domain}
 
-    @api.onchange('product_id', 'qty')
-    def Quantity_Moves(self):
-        diff = 0.0
+    # @api.onchange('product_id', 'qty')
+    # def Quantity_Moves(self):
+    #     diff = 0.0
         
-        stock_location = self.env['stock.location']
-        search_location = stock_location.search(
-                [('branch_id', '=', self.branch_id.id)])
-        for r in search_location:
-            stock_quant = self.env['stock.quant']
-            search_quanty = stock_quant.search(
-                    ['&', ('location_id', '=', r.id), ('product_id', '=', self.product_id.id)])
-            if search_quanty:
-                for rey in search_quanty:
-                    diff = rey.qty - self.qty
-                    self.write({'actual_qty': rey.qty})
-                    remain = self.actual_qty - rey.qty
-                    self.write({'qty': diff, 'remaining_qty': remain})
+    #     stock_location = self.env['stock.location']
+    #     search_location = stock_location.search(
+    #             [('branch_id', '=', self.branch_id.id)])
+    #     for r in search_location:
+    #         stock_quant = self.env['stock.quant']
+    #         search_quanty = stock_quant.search(
+    #                 ['&', ('location_id', '=', r.id), ('product_id', '=', self.product_id.id)])
+    #         if search_quanty:
+    #             for rey in search_quanty:
+    #                 diff = rey.qty - self.qty
+    #                 self.write({'actual_qty': rey.qty})
+    #                 remain = self.actual_qty - rey.qty
+    #                 self.write({'qty': diff, 'remaining_qty': remain})
                         # rec.write({'remaining_qty':remain})
-    '''@api.onchange('product_id')
-    def Quantity_Moves(self):
-        diff = 0.0
-        # for rec in self:
-        stock_location = self.env['stock.location']
-        search_location = stock_location.search(
-                [('branch_id', '=', self.branch_id.id)])
-        for r in search_location:
-            stock_quant = self.env['stock.quant']
-            search_quanty = stock_quant.search(
-                    [('location_id', '=', r.id), ('product_id', '=', self.product_id.id)])
-        if search_quanty:
-            for rey in search_quanty:
-                diff += rey.qty
-            self.actual_qty = diff '''
+    
 
     @api.depends('qty', 'rate')
     def get_total(self):

@@ -7,14 +7,14 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_only_form_view" />
             <field name="arch" type="xml">
-               
                 <xpath expr="//field[@name='type']" position="after">
-                   
-                     <field name="picking_source_location_id" invisible="0"/>
-                      <field name="picking_destination_location_id" invisible="0"/>
+                    <field name="service_charge_tax" invisible="0"/>
+                    <field name="consumption_charge_tax" invisible="0"/>
+                    <field name="club_profit_charge_tax" invisible="0"/>
+                    <!-- <button name="calculate_cost_of_sale" type="object" class="oe_highlight" string="Update CS"/> -->
+                    <field name="picking_source_location_id" invisible="0"/>
+                    <field name="picking_destination_location_id" invisible="0"/>
                 </xpath>
- 
-
             </field>
         </record>
 
@@ -55,5 +55,25 @@
 
             </field>
         </record>
+
+        <record id="action_set_product_sale_price" model="ir.actions.server">
+                <field name="name">Set Cost of Sale</field>
+                <field name="model_id" ref="model_product_template"/>
+                <field name="state">code</field>
+                <field name="condition">True</field>
+                <field name="code">if context.get('active_model') == 'product.template' and context.get('active_ids'):
+                    if object: 
+                        env['product.template'].with_context(context).browse(context.get('active_ids', [])).calculate_cost_of_sale()</field>
+        </record>
+        <record id="confirm_all_product_sale_price" model="ir.values">
+                <field name="name">name2</field>
+                <field name="model">product.template</field>
+                <field name="key">action</field>
+                <field name="key2">client_action_multi</field>
+                <field name="value" eval="'ir.actions.server,%d' %action_set_product_sale_price"/>
+        </record>
+
+        <menuitem name="Display Stock" id="menu_for_ikoyi_inventory_display" sequence="11" action ="product.product_normal_action" parent ="stock.menu_stock_warehouse_mgmt"/>
+
     </data>
 </odoo>

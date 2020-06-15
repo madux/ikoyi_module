@@ -44,3 +44,15 @@ access_hr_employee_id,access_hr_employee_name,hr.model_hr_employee,,1,1,1,1
 accesshr_capital_development_id,access_hr_capital_development_name,model_hr_capital_development,,1,1,1,1
 accesshr_model_hr_manpower_id,access_model_hr_manpower_name,model_hr_manpower,,1,1,1,1
 accesshr_offer_management_id,access_hr_offer_management_name,model_hr_offer_management,,1,1,1,1
+
+accesshr_ikoyi_appraisal_id,access_ikoyi_appraisal_name,model_ikoyi_appraisal,,1,1,1,1
+accesshr_ikoyi_appraisal_section_id,access_model_ikoyi_appraisal_section_name,model_ikoyi_appraisal_section,,1,1,1,1
+accesshr_ikoyi_appraisal_config_id,access_ikoyi_appraisal_config_name,model_ikoyi_appraisal_config,,1,1,1,1
+accesshr_ikoyi_appraisal_template_id,access_model_ikoyi_appraisal_template_name,model_ikoyi_appraisal_template,,1,1,1,1
+
+access_masterbudget_id,access_masterbudget_name,model_master_budget,,1,1,1,1
+accessdepartmentbudget_id,access_departmentbudget_name,model_department_budget,,1,1,1,1
+access_departmentbudgetline_id,access_departmentbudgetline_name,model_department_budget_line,,1,1,1,1
+access_masterbudget_id,access_masterbudget_name,model_master_budget,,1,1,1,1
+access_input_budget_back_id,access_input_budget_back_name,model_input_budget_back,,1,1,1,1
+access_master_budget_back_id,access_master_budget_back_name,model_master_budget_back,,1,1,1,1

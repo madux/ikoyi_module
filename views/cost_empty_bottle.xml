@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+
+        <record id="ikoyi_cost_empty_bottle_form_view" model="ir.ui.view">
+            <field name="name">costing.empty.bottle</field>
+            <field name="model">costing.empty.bottle</field>
+            <field name="arch" type="xml">
+                <form string="Cost Empty Bottle">
+                    <header>
+                         
+                        
+                        <button name="button_self_manager" type="object" states="draft" class="oe_highlight" confirm="Click OK to Confirm." 
+                        string="Send to Manager"/>
+                        <button name="button_approve" type="object" states="manager" class="oe_highlight" string="Approve" 
+                        confirm="Click OK to Confirm."/>
+
+                        <button name="complete_button" type="object" states="approve" class="oe_highlight" string="Complete"
+                        confirm="Click OK to Complete?"/>
+                        <button name="button_refuse" type="object" states="manager" class="oe_highlight"
+                        string="Refuse" confirm="Click OK to Confirm Refusal."/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,manager,approve,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label string="Name "/>
+                            <h1>
+                                <field name="name" readonly="0" placeholder="Description"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="employee_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" required="1"/>
+                                <field name="direct_to" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}"
+                                 required="1"/>
+
+                            </group>
+                            <group>
+                                <field name="date" />
+                            </group> 
+                        </group>
+                        <notebook>
+                            <page string="Bottle Lines" >
+                                <field name="order_line" string="Details" mode="tree,kanban">
+                                    <tree string="Details" editable="bottom">
+                                        <field name="product_id" options="{&quot;no_open&quot;: True,'no_quick_create':False,'no_create_edit':False}"/>
+                                        <field name="label" string="UoM"/>
+                                        <field name="recieve_qty" required="1"/>
+                                    </tree>
+                                     
+                                </field>
+                            <p></p>
+                            <h3 class="oe_grey">Notes</h3>
+                            <ul class="oe_grey"><li>Select bottle products.</li>
+                            <li>Make Request.</li>
+                            <li>...</li>
+                            </ul>
+                        </page>
+                             
+
+                        </notebook>
+                        <field name="notes" class = "oe_inline" placeholder="Add note... "/>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="cost_empty_bottle_tree_view" model="ir.ui.view">
+            <field name="name">costing.empty.bottle</field>
+            <field name="model">costing.empty.bottle</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='refuse'" decoration-info="state in ('approve')" string="Empty Bottle Lists">
+                    <field name="name" invisible="0" readonly="1"/>
+                    <field name="employee_id"/>
+                    <field name="date"/>
+                    <field name="state"/>
+
+                </tree>
+            </field>
+        </record>
+ 
+        <record id="cost_empty_bottle_search_view" model="ir.ui.view">
+            <field name="name">costing.empty.bottle.search</field>
+            <field name="model">costing.empty.bottle</field>
+            <field name="arch" type="xml">
+                <search string="Empty Bottle">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Empty Bottle"/>
+                    <field name="date"/>
+
+                    <filter string="Draft" domain="[('state','=','draft')]" help="Draft"/>
+                    <filter string="Food &amp; Beverage Manager Approval" domain="[('state','=','manager')]" help="To Approve By Manager" />
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="ikoyi_cost_empty_bottle_action" model="ir.actions.act_window">
+            <field name="name">Empty Bottle</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">costing.empty.bottle</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to create Empty Bottle.
+                </p>
+            </field>
+        </record>
+
+        <record id="ikoyi_cost_empty_bottle_manager_action" model="ir.actions.act_window">
+            <field name="name">Empty Bottle</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">costing.empty.bottle</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state','in',['manager'])]</field>
+
+            <field name="search_view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to create Empty Bottle.
+                </p>
+            </field>
+        </record>
+ 
+        <menuitem name="Empty Bottle" id="main_menu_for_ikoyi_empty_bottle" sequence="14" parent ="ikoyi_module.costing_managment_menu"/>        
+
+            <menuitem name="Empty Bottle" id="menu_for_ikoyi_empty_bottle" sequence="1" action ="ikoyi_cost_empty_bottle_action" parent ="main_menu_for_ikoyi_empty_bottle"/>        
+                <menuitem name="Food &amp; Beverage Manager Approvals" id="menu_for_ikoyi_empty_bottle_ic" sequence="1" action ="ikoyi_cost_empty_bottle_manager_action" parent ="main_menu_for_ikoyi_empty_bottle"/>        
+                 
+    </data>
+</odoo>

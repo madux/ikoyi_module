@@ -68,6 +68,18 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="hr_contract_inherited" >
+            <field name="name">hr.contract</field>
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='type_id']" position="before">
+                    <field name="type_structure" required="1"/>
+                </xpath>
+
+            </field>
+        </record>
+
 
 
     </data>

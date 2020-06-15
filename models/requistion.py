@@ -343,10 +343,14 @@ class Raise_Requistion(models.Model):
         else:
             raise ValidationError('The requested product is not available \
                                    in the Stock location')
-            
+
+    def get_internal_picking_type(self):
+        pick_type = self.env['stock.picking.type'].search([('name', '=', 'Internal Transfers')], limit=1)
+        return pick_type.id
+        
     picking_type_id = fields.Many2one(
         'stock.picking.type', 'Picking Type', 
-        readonly=True, 
+        readonly=True, default=lambda self : self.get_internal_picking_type(),
         states={'draft': [('readonly', False)], 'store': [('readonly', False)]})
 
     picking_type_code = fields.Selection([
@@ -354,6 +358,11 @@ class Raise_Requistion(models.Model):
         ('outgoing', 'Customers'),
         ('internal', 'Internal')],string='Operation Type',
        required=False, related='picking_type_id.code', states={'draft': [('readonly', False)]})
+
+    def destination_location_id(self):
+        location_ref = self.env['stock.location'].search(['|', ('name', '=', 'Customers'),
+        ('usage', '=', 'customer')], limit=1)
+        return location_ref.id
 
     def create_stock_move(self):
         # picking_type_id2 = self.env['stock.picking.type'].search(
@@ -369,7 +378,7 @@ class Raise_Requistion(models.Model):
                     'partner_id':partner_id,
                     'min_date': self.date_order,
                     'location_id': self.picking_type_id.default_location_src_id.id, #locate_out[0].id,
-                    'location_dest_id': self.picking_type_id.default_location_src_id.id,# locate_in[0].id,
+                    'location_dest_id': self.destination_location_id(),# self.picking_type_id.default_location_src_id.id,# locate_in[0].id,
                     'branch_id': self.env.user.branch_id.id,
                     'picking_type_id': self.picking_type_id.id,
                     'picking_type_code': self.picking_type_id.code
@@ -382,15 +391,15 @@ class Raise_Requistion(models.Model):
                     'product_id':line.product_id.id,
                      'product_uom_qty':line.qty,
                      'product_uom': line.label.id,
-                     'location_id': line.product_id.picking_source_location_id.id, #locate_out[0].id,
-                     'location_dest_id': line.product_id.picking_destination_location_id.id,
+                     'location_id': self.picking_type_id.default_location_src_id.id, #locate_out[0].id,
+                     'location_dest_id': self.picking_type_id.default_location_src_id.id,
                      }
 
             pick_browse.write({'move_lines':[(0,0, lines)]})
         # pick_browse.action_confirm()
         self.origin = pick_browse.name
-        xxxxlo = self.env['stock.picking'].search([('id', '=', pick_id.id)])
-        if not xxxxlo:
+        picking_ref = self.env['stock.picking'].search([('id', '=', pick_id.id)])
+        if not picking_ref:
             raise ValidationError('There is no related Pickings Created.')
         resp = {
             'type': 'ir.actions.act_window',
@@ -399,7 +408,7 @@ class Raise_Requistion(models.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'current',
-            'res_id': xxxxlo.id
+            'res_id': picking_ref.id
         }
         return resp
 

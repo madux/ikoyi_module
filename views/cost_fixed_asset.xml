@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+
+        <record id="ikoyi_cost_fixed_asset_move_form_view" model="ir.ui.view">
+            <field name="name">cost.fixed.asset.move</field>
+            <field name="model">cost.fixed.asset.move</field>
+            <field name="arch" type="xml">
+                <form string="Cost Fixed Asset Move">
+                    <header>
+                        
+                        <button name="action_start" type="object" states="draft" confirm="Click OK to Confirm." 
+                        class="oe_highlight" string="Compute"/>
+                        <button name="action_officer_ic" type="object" states="confirm" class="oe_highlight" confirm="Click OK to Confirm." 
+                        string="Send to Internal Control" groups="ikoyi_module.costing_officer_ikoyi,ikoyi_module.costing_manager_ikoyi,base.group_system"/>
+                        <button name="action_ic_fa" type="object" states="intenal_control" class="oe_highlight" string="Send to F&amp;A" 
+                        confirm="Click OK to Confirm." groups="ikoyi_module.audit_boss_ikoyi,base.group_system"/>
+
+                        <button name="action_fa_to_gm" type="object" states="fa_manager" class="oe_highlight" string="Send To GM"
+                        groups="ikoyi_module.account_boss_ikoyi,base.group_system" confirm="Click OK to Confirm."/>
+                        <button name="action_gm_approve" type="object" states="gm" class="oe_highlight" groups="ikoyi_module.gm_ikoyi,base.group_system" 
+                        string="Approve" confirm="Click OK to Confirm Approval."/>
+                        <button name="action_complete" groups="ikoyi_module.costing_officer_ikoyi,ikoyi_module.costing_manager_ikoyi,base.group_system" type="object" states="approved" class="oe_highlight" string="Complete" confirm="Click OK to Complete."/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,internal_control,fa_manager,gm,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label string="Name "/>
+                            <h1>
+                                <field name="name" readonly="0" placeholder="Description"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="location_id" string="Location" widget="many2many_tags"/>
+                                <field name="employee_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" required="1"/>
+                            </group>
+                            <group>
+                                <field name="date" />
+                            </group> 
+                        </group>
+                        <notebook>
+                            <page string="Inventory Details" >
+                                <field name="line_ids" string="Inventory Details" mode="tree,kanban">
+                                    <tree string="Inventory Details" editable="bottom">
+                                        <field name="product_id" domain="[('type','=','product')]"/>
+                                        <field name="product_uom_id" string="UoM" groups="product.group_uom"/>
+                                        <field name="location_id" required="0"/>
+                                        <field name="product_qty" string="Real Quantity"/>
+                                    </tree>
+                                     
+                                </field>
+                            <p></p>
+                            <h3 class="oe_grey">Notes</h3>
+                            <!-- <ul class="oe_grey"><li>Inventory adjustments will be made by comparing the theoretical and the checked quantities.</li>
+                            <li>You can delete lines to ignore some products.</li>
+                            <li>If a product is not at the right place, set the checked quantity to 0 and create a new line with correct location.</li>
+                            </ul> -->
+                        </page>
+                             
+
+                        </notebook>
+                        <field name="notes" class = "oe_inline" placeholder="Add note... "/>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="cost_fixed_asset_move_tree_view" model="ir.ui.view">
+            <field name="name">cost.fixed.asset.move</field>
+            <field name="model">cost.fixed.asset.move</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='cancel'" decoration-info="state in ('approved')" string="Fixed Assset Moves">
+                    <field name="name" invisible="0" readonly="1"/>
+                    <field name="employee_id"/>
+                    <field name="location_id" invisible="0"/>
+                    <field name="date"/>
+                    <field name="state"/>
+
+                </tree>
+            </field>
+        </record>
+ 
+        <record id="cost_fixed_asset_move_search_view" model="ir.ui.view">
+            <field name="name">cost.fixed.asset.move.search</field>
+            <field name="model">cost.fixed.asset.move</field>
+            <field name="arch" type="xml">
+                <search string="Fixed Assset Moves">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Fixed Assset Moves"/>
+                    <field name="date"/>
+
+                    <filter string="Draft" domain="[('state','=','draft')]" help="Draft"/>
+                    <filter string="Internal Control Approval" domain="[('state','=','internal_control')]" help="To Approve By internal control" />
+                    <filter string="F &amp; A Approval" domain="[('state','=','fa_manager')]" help="To Approve By F&amp;A" />
+                    <filter string="GM Approval" domain="[('state','=','gm')]" help="To Approve By GM" />
+                    <filter string="All Approved" domain="[('state','=','approved')]" help="All Approved" />
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="ikoyi_cost_fixed_asset_move_action" model="ir.actions.act_window">
+            <field name="name">Fixed Asset Move</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">cost.fixed.asset.move</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to create Fixed Asset Move.
+                </p>
+            </field>
+        </record>
+
+        <record id="ikoyi_cost_fixed_asset_move_ic_action" model="ir.actions.act_window">
+            <field name="name">Fixed Asset Move</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">cost.fixed.asset.move</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state','in',['internal_control'])]</field>
+
+            <field name="search_view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to create Fixed Asset Move.
+                </p>
+            </field>
+        </record>
+
+        <record id="ikoyi_cost_fixed_asset_move_fa_action" model="ir.actions.act_window">
+            <field name="name">Fixed Asset Move</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">cost.fixed.asset.move</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state','in',['fa_manager'])]</field>
+
+            <field name="search_view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to create Fixed Asset Move.
+                </p>
+            </field>
+        </record>
+
+        <record id="ikoyi_cost_fixed_asset_move_gm_action" model="ir.actions.act_window">
+            <field name="name">Fixed Asset Move</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">cost.fixed.asset.move</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state','in',['gm','done'])]</field>
+
+            <field name="search_view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="view_id" eval="False"/>
+            <!-- Force empty -->
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                Click to create Fixed Asset Move.
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Fixed Asset Move" id="main_menu_for_ikoyi_fixed_asset_move" sequence="12" parent ="ikoyi_module.costing_managment_menu"/>        
+
+            <menuitem name="Fixed Asset Move" id="menu_for_ikoyi_fixed_asset_move" sequence="1" action ="ikoyi_cost_fixed_asset_move_action" parent ="main_menu_for_ikoyi_fixed_asset_move"/>        
+                <menuitem name="Internal Control" id="menu_for_ikoyi_fixed_asset_move_ic" sequence="1" action ="ikoyi_cost_fixed_asset_move_ic_action" parent ="main_menu_for_ikoyi_fixed_asset_move"/>        
+                <menuitem name="F&amp;A Approval" id="menu_for_ikoyi_fixed_asset_move_fa" sequence="2" action ="ikoyi_cost_fixed_asset_move_fa_action" parent ="main_menu_for_ikoyi_fixed_asset_move"/>        
+                <menuitem name="GM" id="menu_for_ikoyi_fixed_asset_move_gm" sequence="3" action ="ikoyi_cost_fixed_asset_move_gm_action" parent ="main_menu_for_ikoyi_fixed_asset_move"/>        
+
+    </data>
+</odoo>

@@ -64,15 +64,15 @@
             <field name="arch" type="xml">
                 <tree string="Requisition line">
                        <field name="branch_id"/>
-                                    <field name="unit"/>
-                                    <field name="product_id" required="1"/>
-                                    <field name="name"/>
-                                    <field name="date_planned"/>
-                                    <field name="label"/>
-                                    <field name="actual_qty" string="Stock Qty" readonly="1"/>
-                                    <field name="qty" required="1"/>
-                                    <field name="rate"/>
-                                    <field name="total"/>
+                        <field name="unit"/>
+                        <field name="product_id" required="1"/>
+                        <field name="label"/>
+                        <field name="name"/>
+                        <field name="date_planned"/>
+                        <field name="actual_qty" string="Stock Qty" readonly="1"/>
+                        <field name="qty" required="1"/>
+                        <field name="rate"/>
+                        <field name="total"/>
 
                 </tree>
             </field>
@@ -206,13 +206,15 @@
 
                         <page string = "Product Lines">
                             <separator colspan="4" string="Items"/>
-                            <field name="order_line" attrs="{'readonly':[('state','!=','draft')]}">
+                            <field name="order_line" attrs="{'readonly':[('state','!=','draft')]}"
+                            context="{'default_branch_id': branch_id}">
                                 <tree string="Product Lines" editable="bottom">
-                                    <field name="branch_id"/>
+                                    <field name="branch_id" invisible="1"/>
                                     <field name="product_id" required="1"/>
+                                    <field name="label"/>
+
                                     <field name="unit" invisible="1"/>
                                     <field name="name"/><field name="date_planned"/>
-                                    <field name="label"/>
                                     <field name="taxes_id" widget="many2many_tags"/>
                                     <field name="actual_qty" string="Stock Qty" readonly="1"/>
                                     <field name="qty" required="1"/>

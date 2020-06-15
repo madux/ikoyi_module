@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <!-- Hotel Report Action -->
+        <report id="ikoyi_department_budget_report"
+            string="Departmet Budget Input"
+            model="department.budget"
+            report_type="qweb-html"
+            name="ikoyi_module.ikoyi_department_budget_report_template"
+            file="ikoyi_module.ikoyi_department_budget_report_template"
+            menu="False"
+            />
+
+        <!-- Department Budget Input Template -->
+        <template id="ikoyi_department_budget_report_template">
+            <t t-call="report.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="report.external_layout">
+                        <div class="page">
+							<div class="row">
+                                <h3>
+                                    <span>
+                                        <center><u>IKOYI CLUB 1938</u></center>
+                                    </span>
+                                </h3>
+                            </div>
+
+                            <div class="row">
+                                <center><div class="watermark;col-xs-12" styles="position:absolute;opacity:0.25; font-size:1000px;width:300%;z-index">
+                                    <img src="/ikoyi_module/static/img/ikoyi_logo2.png" style="max-height:100px;"/>
+                                    <!-- img src="https://imgur.com/gLIZY95.jpg" style="max-height: 150px"/ -->
+                                </div></center>
+                            </div>
+                             
+                            <div class="row">
+                                <div class="col-xs-4 col-xs-offset-8" style="font-size: 17px;">
+                                    <strong>Date:</strong> <span t-field="o.prepare_date"/><br/>
+									<strong>Department:</strong> <span t-field="o.dept_ids.name"/>
+                                </div>
+								
+                                <div class="col-xs-4" style="font-size: 17px;">
+                                    <strong>Requester:</strong> <span t-field="o.employee_id.name"/><br/>
+									<strong>Overall Balance:</strong> <span t-field="o.total_balance_amount"/><br/>
+                                    <strong>Total Budget:</strong> <span t-field="o.total_amount"/><br/>
+                                    <strong>Total Variance:</strong> <span t-field="o.variance"/> 
+                                </div>
+                            </div><br/>
+                            <p></p>
+							
+							<div class="row">
+                                <center><u class="col-xs-12" style="font-size: 28px;">
+                                    <strong> <span t-field="o.name"/> </strong>
+                                </u></center>
+                            </div><br/>
+						
+
+                            <div class="row" style="font-size: 17px;">
+                                <div class="col-xs-12" style="text-align:left">
+                                    <strong>Department budget of ₦<span t-esc="'{0:,.2f}'.format(int(o.total_amount))"/>, being amount budgeted for the following items;</strong>
+                                </div><br/><br/><br/>
+                                <p></p>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+											<!-- <th><strong>Acc No</strong></th> -->
+											<th><strong>Product</strong></th>
+                                            <th><strong>Description</strong></th>
+                                            <th><strong>Qty</strong></th>
+                                            <th><strong>Unit Price</strong></th>
+                                            <th><strong>Amount</strong></th>
+                                            <th><strong>Variance</strong></th>
+                                            <th><strong>Justification</strong></th>   
+                                        </tr>
+                                    </thead>
+                                    <t t-foreach="o.department_budget_line" t-as="line">
+                                        <tbody>
+                                            <tr>
+                                                <!-- <td> <span t-esc="line.product_id.code"/></td> -->
+                                                <td> <span t-esc="line.product_id.name"/></td>
+                                                <td> <span t-esc="line.name"/></td>
+                                                <td> <span t-esc="line.quantity_id"/></td>
+                                                <td> <span t-esc="'{0:,.2f}'.format(int(line.unit_price))"/> </td>
+                                                <td> <span t-esc="'{0:,.2f}'.format(int(line.sub_total))"/></td>
+                                                <td> <span t-esc="'{0:,.2f}'.format(int(line.variance))"/></td>
+                                                <td> <span t-esc="line.justification"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </t>
+                                    <t> 
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td><strong>Total Amount:</strong></td>
+                                        <td>
+                                            <span t-esc="'{0:,.2f}'.format(int(o.total_amount))"/>
+                                            
+                                        </td>
+                                    </t>
+                                </table>
+							</div>
+							
+							<div class="row">
+                                <p class="col-xs-12" style="font-size: 17px;">
+                                    <span t-field="o.notes"/>.
+                                </p>
+                            </div><br/>
+
+							<div class="row" style="margin-top: 120px;">
+								<div class="col-xs-6">
+									<span style="font-size: 17px;"><strong>AUTHORISED SIGNATORY</strong></span><br/>
+								</div>
+								<div class="col-xs-6">
+									<span style="font-size: 17px;"><strong>AUTHORISED SIGNATORY</strong></span><br/>
+								</div>
+							</div>
+						</div>
+					</t>
+				</t>
+			</t>
+		</template>
+	</data>
+</odoo>
+							
+							
+							
+							

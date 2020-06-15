@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <!-- Master Budget Report Action -->
+        <report id="ikoyi_master_budget_report_main"
+            string="Master Budget Report"
+            model="master.budget"
+            report_type="qweb-html"
+            name="ikoyi_module.ikoyi_master_budget_report_template_main"
+            file="ikoyi_module.ikoyi_master_budget_report_template_main"
+            menu="True"
+            />
+
+        <template id="ikoyi_master_budget_report_template_main">
+            <t t-call="report.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="report.external_layout">
+                        <div class="page">
+						
+							<div class="row">
+                                <h3>
+                                    <span>
+                                        <center><u>IKOYI CLUB 1938</u></center>
+                                    </span>
+                                </h3>
+                            </div>
+
+                            <div class="row">
+                                <center><div class="watermark;col-xs-12" styles="position:absolute;opacity:0.25; font-size:1000px;width:300%;z-index">
+                                    <img src="/ikoyi_module/static/img/ikoyi_logo2.png" style="max-height:100px;"/>
+
+                                    <!-- img src="https://imgur.com/gLIZY95.jpg" style="max-height: 150px"/ -->
+                                </div></center>
+                            </div>
+                             
+                            <div class="row">
+                                <div class="col-xs-4 col-xs-offset-8" style="font-size: 17px;">
+                                    <strong>Requester:</strong> <span t-field="o.employee_id.name"/><br/>
+									<strong>Department:</strong> <span t-field="o.dept_ids"/><br/>
+									<strong>Unit:</strong> <span t-field="o.unit_ids"/><br/>
+                                    <strong> Start Date:</strong> <span t-field="o.date_from"/><br/>
+									<strong>End Date:</strong> <span t-field="o.date_to"/><br/>
+                                </div>
+                            </div><br/>
+                            <p></p>
+							
+							<div class="row">
+                                <div class="col-xs-4" style="font-size: 17px;">
+                                    <strong>Overall Balance:</strong> <span t-field="o.balance_overall"/><br/>
+                                    <strong>Department Balance:</strong> <span t-field="o.balance_id"/><br/>
+                                    
+                                    <strong>Total Budget:</strong> <span t-field="o.total_amount"/><br/>
+                                    <strong>Total Variance:</strong> <span t-field="o.variance"/><br/>
+                                    <strong>Total Released Amount:</strong> <span t-field="o.amount_release"/> 
+
+                                </div>
+                            </div><br/>
+                            <p></p>
+							
+							<div class="row">
+                                <center><u class="col-xs-12" style="font-size: 28px;">
+                                    <strong> <span t-field="o.name"/> </strong>
+                                </u></center>
+                            </div><br/>
+						
+
+                            <div class="row" style="font-size: 15px;">
+                                <div class="col-xs-12" style="text-align:left">
+                                    <strong>Ikoyi Club Master budget of ₦ <span t-esc="'{0:,.2f}'.format(int(o.total_amount))"/>, being amount budgeted for the following items;</strong>
+                                </div><br/>
+								<p></p>
+								
+								 <div class="col-xs-12" style="color:orange;">
+                                    <strong style="font-size: 23px;"><u> DEPARTMENTS BUDGETS </u></strong>
+                                </div><br/>
+								<p></p>
+								
+                                <p><strong> Budget Input </strong></p>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+											<th><strong>Name</strong></th>
+											<th><strong>Department</strong></th>
+											<th><strong>Approve Date</strong></th>
+											<th><strong>Budget Type</strong></th>
+											<th><strong>Total Budget Amount</strong></th>
+											<th><strong>Total Balance</strong></th>
+											<th><strong>Total Variance</strong></th>
+
+                                        </tr>
+                                    </thead>
+                                <t t-foreach="o.master_budget_line" t-as="acc">
+                                    <tbody>
+										<tr>
+                                            <td> <span t-esc="acc.name"/></td>
+											<td> <span t-esc="acc.dept_ids.name"/></td>
+											<td> <span t-esc="acc.apprv_date"/></td>
+                                            <td> <span t-esc="acc.budget_type"/></td>
+                                            <td> <span t-esc="'{0:,.2f}'.format(int(acc.total_amount))"/> </td>
+                                            <td> <span t-esc="'{0:,.2f}'.format(int(acc.total_balance_amount))"/></td>
+											<td> <span t-esc="'{0:,.2f}'.format(int(acc.variance))"/></td>
+										</tr>
+									</tbody>
+                                </t>
+                                </table>
+							</div>
+							
+							<div class="row" style="margin-top: 120px;">
+								<div class="col-xs-6">
+									<span style="font-size: 17px;"><strong>AUTHORISED SIGNATORY</strong></span><br/>
+								</div>
+								<div class="col-xs-6">
+									<span style="font-size: 17px;"><strong>AUTHORISED SIGNATORY</strong></span><br/>
+								</div>
+							</div>
+						</div>
+					</t>
+				</t>
+			</t>
+		</template>
+	</data>
+</odoo>
+							
+							
+							
+							

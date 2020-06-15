@@ -25,15 +25,19 @@
                         <button name="print_credit_note" type="object" class="oe_highlight" string="Print Credit Note" attrs="{'invisible':[('state','not in',['to_vendor'])]}"/>
                         <button name="manager_two_approve" type="object" class="oe_highlight" string="Approve" confirm="Click 'Ok' to confirm" groups="ikoyi_module.inventory_manager_ikoyi,base.group_system" attrs="{'invisible':[('state','not in',['manager_two'])]}"/>
 
-                        <button name="view_gro_note" type="object" class="oe_highlight" string="Print GRO Note" attrs="{'invisible':[('state','not in',['draft'])]}"/>
+                        <button name="view_gro_note" type="object" class="oe_highlight" string="Print GRO Note" 
+                        invisible="1"/>
+                         <!-- attrs="{'invisible':[('state','not in',['draft'])]}"/> -->
 
-                        <button name="print_viewgro_note" type="object" class="oe_highlight" string="view GRO Note" attrs="{'invisible':[('state','not in',['store_manager'])]}"/>
+                        <button name="print_viewgro_note" type="object" class="oe_highlight" string="view GRO Note" 
+                        invisible="1"/>
+                        <!-- attrs="{'invisible':[('state','not in',['store_manager'])]}"/> -->
  
                         
                         <button name="complete_order" type="object" class="oe_highlight" string="Complete Order" groups="ikoyi_module.inventory_manager_ikoyi,base.group_system" attrs="{'invisible':[('state','not in',['done'])]}"/>
 
                         
-                        <button name="account_approval" type="object" class="oe_highlight" string="Account Approve" groups="ikoyi_module.account_payable_ikoyi,ikoyi_module.account_boss_ikoyi,base.group_system" attrs="{'invisible':[('state','not in',['account'])]}"/>
+                        <!-- <button name="account_approval" type="object" class="oe_highlight" string="Account Approve" groups="ikoyi_module.account_payable_ikoyi,ikoyi_module.account_boss_ikoyi,base.group_system" attrs="{'invisible':[('state','not in',['account'])]}"/> -->
                         <button name="button_rejects" type="object" class="oe_highlight" string="Reject" attrs="{'invisible':[('state','not in',['store_manager','manager_two'])]}"/>
 
                         <field name="state" widget="statusbar" statusbar_visible="draft,store_manager,update,to_vendor,account"/>
@@ -50,7 +54,8 @@
                                 <field name="user_id" invisible = "1" readonly="1" string="User"/>
                                 <field name="origin" />
                                 <field name="employee_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" required="1"/>
-                                <field name="stock_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" attrs="{'required':[('state','=','draft')]}"/>
+                                <field name="stock_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True}" 
+                                attrs="{'required':[('state','=','draft')]}"/>
                                 <field name="currency_id" invisible="1" no_create="True"/>
 
                                 <field name="company_id" invisible="1" no_create="True"/>
@@ -262,8 +267,7 @@
             </field>
         </record>
 
-        <menuitem name="Goods Return" id="menu_for_ikoyi_groreturn_main" sequence="9" action ="ikoyi_gro_return_action" parent ="stock.menu_stock_warehouse_mgmt"/>
-
+        <menuitem name="Goods Return" id="menu_for_ikoyi_groreturn_main" sequence="9" action ="ikoyi_gro_return_action" parent ="stock.menu_stock_warehouse_mgmt"/>        
 
         <menuitem name="Goods Return" id="menu_ikoyigromain_id" sequence="4" parent ="ikoyi_module.ikoyi_material_request_id" groups="ikoyi_module.account_payable_ikoyi,ikoyi_module.account_boss_ikoyi,base.group_system"/>
         <menuitem name="GRO" id="menu_ikoyigrosub_id" sequence="1" parent ="menu_ikoyigromain_id" action="ikoyi_gro_return_public"/>

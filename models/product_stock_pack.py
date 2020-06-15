@@ -19,7 +19,40 @@ class ProductProduct(models.Model):
     picking_source_location_id = fields.Many2one('stock.location',  string='Picking Source Location')#, related='picking_id.location_id')
     picking_destination_location_id = fields.Many2one('stock.location',  string='Picking Destination',)#, related='picking_id.location_dest_id')
     
+    service_charge_tax = fields.Many2one('account.tax', string='Service Charge Taxes',
+        domain=[('type_tax_use', '=', 'sale')])
 
+    consumption_charge_tax = fields.Many2one('account.tax', string='Service Charge Taxes',
+        domain=[])
+
+    club_profit_charge_tax = fields.Many2one('account.tax', string='Club Profit Charge Taxes',
+        domain=[('type_tax_use', '=', 'sale')])
+
+    """ sale_price = Costprice + % club + % consumption + % service """
+    @api.one
+    def calculate_cost_of_sale(self):
+        percent_type = ["percent", "fixed"]
+        if self.service_charge_tax or self.consumption_charge_tax or self.club_profit_charge_tax:# and (self.standard_price <= 0):
+            if self.club_profit_charge_tax.amount_type in percent_type:
+                club_profit_rate = self.standard_price * (self.club_profit_charge_tax.amount / 100)
+            else:
+                club_profit_rate = 0
+            if self.service_charge_tax.amount_type in percent_type:
+                service_rate = self.standard_price * (self.service_charge_tax.amount / 100)
+            else:
+                service_rate = 0
+
+            if self.consumption_charge_tax.amount_type in percent_type:
+                consumption_rate = self.standard_price * (self.consumption_charge_tax.amount /100)
+            else:
+                consumption_rate = 0
+            value = club_profit_rate + consumption_rate +service_rate
+            self.lst_price = self.standard_price + value
+            # return value
+
+        # else:
+        #     raise ValidationError('Please Add cost price on the product')
+            
 class ReturnPicking(models.TransientModel):
     _inherit = 'stock.return.picking'
     stock_id = fields.Many2one('stock.picking', compute="get_move_picking_id")

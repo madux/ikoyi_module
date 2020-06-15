@@ -16,12 +16,18 @@
                      the whole activities of ikoyi club""",
     'category': 'Procurement',
 
-    'depends': ['base', 'mail', 'purchase', 'branch', 'web_digital_sign', 'stock', 'hr'],
+    'depends': ['base', 'mail', 'purchase', 'branch', 'stock', 'hr', 'hr_contract'], #web_digital_sign
     'data': [
         'security/security_group.xml',
         'security/menu_views_security.xml',
         'sequence/sequence.xml',
         'views/ikoyi_procurement_views.xml',
+        'views/cost_stock_inventory_circulating.xml',
+        'views/cost_empty_bottle.xml',
+        'views/cost_fixed_asset.xml',
+        'views/hr_inherit.xml',
+        'views/ik_main_department_budget.xml',
+        'views/ik_master_budget.xml',
         'views/hr_inherit.xml',
         'views/requisition_view.xml',
         'views/goods_return_views.xml',
@@ -41,8 +47,11 @@
         'reports/single_mandate.xml',
         'reports/reports_inherits.xml',
         'reports/purchase_print.xml',
+        'reports/budget_department.xml',
+        'reports/budget_master_report.xml',
         'views/report_grn_two.xml',
         'views/report_grn.xml',
+        'views/hr_appraisal.xml',
         # 'views/hr_leave.xml',
         # 'reports/mandate_report_view.xml',
         'wizard/mandate_report_view.xml',
@@ -52,8 +61,7 @@
     'price': 4200.99,
     'currency': 'USD',
     'sequence': 1,
-
-
+    'css': ['static/css/ikoyi.css'],
     'installable': True,
     'auto_install': False,
 }

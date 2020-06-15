@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="ikoyi_appraisal_action" model="ir.actions.act_window">
+            <field name="name">Ikoyi Appraisal</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ikoyi.appraisal</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to Add Appraisal.
+              </p>
+            </field>
+        </record>
+
+
+        <record id="ikoyi_appraisal_config_action" model="ir.actions.act_window">
+            <field name="name">Configuration</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ikoyi.appraisal.config</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to Add Config.
+              </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="ikoyi_appraisal_config_form_view">
+            <field name="name">ikoyi.appraisal.config</field>
+            <field name="model">ikoyi.appraisal.config</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                        <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="Questionaire"/> 
+                            </h1>
+                        </div>
+
+                        <group string="Section">
+                            <group>
+                                <field name = "section"/>
+                                
+                             </group>
+                             <group string="Scores">
+                                <field name = "target"/>
+                                <field name = "weight"/>
+                             </group> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+           
+             <!--Tree View for Ikoyi memo Form -->
+        <record id="view_ikoyi_appraisal_config_tree" model="ir.ui.view">
+            <field name="name">ikoyi.appraisal.config.tree</field>
+            <field name="model">ikoyi.appraisal.config</field>
+            <field name="arch" type="xml">
+                <tree string="Appraisal Configuration">
+                    <field name = "name"/>
+                    <field name = "section"/>
+                    <field name = "target"/>
+                    <field name = "weight"/>
+                    
+                    
+                </tree>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="ikoyi_appraisal_form_view">
+            <field name="name">ikoyi.appraisal</field>
+            <field name="model">ikoyi.appraisal</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="send_hr_manager" type="object" string="Submit" attrs="{'invisible': [('state', '!=', 'draft')]}" class="btn-primary" groups="base.group_system,ikoyi_module.group_hr_assistant,hr.group_hr_user"/>
+                        <button name="send_to_employee" type="object" string="Send to Employee" states="hr_manager" class="btn-primary" groups="hr.group_hr_manager,base.group_system,ikoyi_module.group_hr_assistant"/>
+                        <button name="send_unit_manager" type="object" string="Submit"  attrs="{'invisible':[('state', '!=', 'sent')]}" class="btn-primary" />
+                        <button name="send_to_hod" type="object" string="Send to HOD" states="unit_manager" class="btn-primary" groups="hr.group_hr_manager,base.group_system,ikoyi_module.ikoyi_hou"/>
+                        <button name="send_hr_manager_two" type="object" string="Approve" states="hod" class="btn-primary" groups="hr.group_hr_manager,base.group_system,ikoyi_module.ikoyi_hod"/>
+                        <button name="send_to_gm" type="object" string="Send to GM" states="hr_manager_two" class="btn-primary" groups="hr.group_hr_manager,base.group_system"/>
+                        <!-- <button name="send_to_hod" type="object" string="Send to HOD" states="gm" class="btn-primary" groups="hr.group_hr_manager,base.group_system,ikoyi_module.gm_ikoyi"/> -->
+                        <button name="send_to_hr_manager_three" type="object" string="Approve" states="gm" class="btn-primary" groups="ikoyi_module.gm_ikoyi,base.group_system"/>
+                        <button name="print_appraisal" type="object" string="Print Appraisal" states="hr_manager_three" class="btn-primary" groups="hr.group_hr_manager,base.group_system"/>
+                        <button name="cancel_button" type="object" string="Cancel" states="hr_manager_three" class="btn-primary" groups="hr.group_hr_manager,base.group_system"/>
+                        <button name="refuse_button" type="object" string="Refuse" states="hr_manager_two,unit_manager,hr_manager,hod,gm" class="btn-primary" groups="ikoyi_module.ikoyi_hou,hr.group_hr_manager,ikoyi_module.gm_ikoyi,base.group_system,ikoyi_module.ikoyi_hod"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,sent,hr_manager_three" />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                        <label for="subject"/>
+                            <h1>
+                                <field name="subject" attrs="{'readonly':[('state','not in',['draft'])]}" placeholder="E.g Appraisal Subject"/>
+                            </h1>
+                        </div>
+
+                        <group string="Details" attrs="{'readonly':[('state','not in',['draft'])]}" >
+                            <group>
+                                <field name = "employee_id" required ="1" options="{'no_quick_create':True,'no_create_edit':True,'no_open':True}"/>
+                                <field name = "job_title"/>
+                                <field name = "dept_ids"/>
+                                <field name = "employment_date"/>
+                                <field name = "lst_promo_date"/>
+                                <field name = "reviewer_name"/>
+                             </group>
+                             <group string="Scores">
+                                <field name = "total_average_score" sum="Total"/>
+                                <field name="appr_date"/>
+
+                             </group> 
+                        </group>
+    
+                        <notebook>
+                            <page string="Appraisal">
+                                <div class="header">
+                                    <img class="banner table-responsive" style="height:50px;width: 830px" src="/ikoyi_module/static/description/appraisal_img.png"/>
+                                </div>
+                                <field name="appraisal_line" widget="one2many_list" string="Appraisal" nolabel="1"> 
+                                <tree string="Appraisal Lines" editable="bottom">
+
+                                    <field name="section" required="1" string="Section #" options="{'no_quick_create':True,'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="question_id" string="Key Performance Indicators" 
+                                        groups="" 
+                                        required="1"
+                                        options="{'no_quick_create':True,'no_create_edit':True, 'no_open':True}"/>
+                                    <field name="target"/>
+                                    <field name="weight"/>
+                                    <field name="state" invisible="1"/>
+                                    <field name="hr_employee_score" attrs="{'required':[('state','in',['sent'])]}" groups="base.group_user,base.group_system"/>
+                                    <field name="unit_manager_score" attrs="{'required':[('state','in',['unit_manager'])]}" groups="base.group_system,ikoyi_module.ikoyi_hou"/>
+                                    <field name="hod_score" attrs="{'required':[('state','in',['hod'])]}" groups="hr.group_manager,base.group_system,ikoyi_module.ikoyi_hod"/>
+                                    <field name="note" invisible="1"/>
+                                </tree>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="emp_total_score"/>
+                                    <field name="unit_total_score"/>
+                                    <field name="hod_total_score"/>
+                                    <!--<div class="oe_subtotal_footer_separator oe_inline">
+                                        <label for="total_score"/>
+                                    </div>
+                                    <field name="total_score" nolabel="1" class="oe_subtotal_footer_separator"/>-->
+                                </group>
+                            </page>
+
+                            <page string="HR Comment">
+                                <field name="hr_comment" groups="hr.group_manager,base.group_system" placeholder="Please add hr manager's comment..."/>  
+                            </page>
+                            <page string="GM Comment">
+                                <field name="gm_comment" groups="base.group_system,ikoyi_module.gm_ikoyi" placeholder="GM comment..."/>  
+                            </page>
+                            <page string="Training / Improvement">
+                                <separator string="Training Needs"/>
+                                    <field name="training_need" nolabel="1"  
+                                        groups="base.group_system,ikoyi_module.gm_ikoyi,base.group_user" placeholder="Training needs..."/> 
+                                    <separator string="Area of self Improvement"/>
+                                        <field name="area_of_improvement" nolabel="1" 
+                                        groups="base.group_system,ikoyi_module.gm_ikoyi,base.group_user" placeholder="Area of improvement..."/>  
+                            </page>
+                            <page string="Extra Information">
+                                <field name="note" placeholder="Provide extra note..."/>  
+                            </page>
+                            
+                        </notebook>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+           
+             <!--Tree View for Ikoyi memo Form -->
+        <record id="view_ikoyi_appraisal_tree" model="ir.ui.view">
+            <field name="name">ikoyi.appraisal.tree</field>
+            <field name="model">ikoyi.appraisal</field>
+            <field name="arch" type="xml">
+                <tree string="Appraisal">
+                    <field name = "subject"/>
+                    <field name = "employee_id"/>
+                    <field name = "dept_ids"/>
+                    <field name = "job_title"/>
+                    <field name="appr_date"/>
+                    <field name = "state"/>
+                    <field name = "total_average_score"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="hr_ikoyi_appraisal_search_view" model="ir.ui.view">
+           <field name="name">ikoyi.appraisal.search</field>
+           <field name="model">ikoyi.appraisal</field>
+           <field name="arch" type="xml">
+               <search string="Appraisal">
+                    <field name="employee_id" filter_domain="[('employee_id','ilike',self)]" string="Appraisal"/>
+                    <field name="appr_date"/>
+                    <field name="job_title"/>
+                    <field name="dept_ids"/>
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+
+        <menuitem id="ikoyi_appraisal_main" name="Appraisal" sequence="79" parent="hr.menu_hr_root"/>
+            <menuitem id="ikoyi_appraisal_header" name ="Employee Appraisal" parent="ikoyi_appraisal_main" sequence="1"
+            action='ikoyi_appraisal_action'/>
+
+        <menuitem id="ikoyi_appraisal_config_main" name="Configuration" parent="ikoyi_appraisal_main" sequence="2"/>
+            <menuitem id="ikoyi_appraisal_config_header" name ="Questionaire" parent="ikoyi_appraisal_config_main" sequence="1"
+            action='ikoyi_appraisal_config_action'/>
+
+
+    </data>
+</odoo>

@@ -21,6 +21,32 @@
             <field name="prefix">HR-OFFER </field>
             <field name="padding">4</field>
         </record>
+
+        <record id="budgetmaster_ikoyi_budget" model="ir.sequence">
+            <field name="name">master.budget</field>
+            <field name="code">master.budget</field>
+            <field name="prefix">MB/</field>
+            <field name="padding">5</field>
+        </record>
+        <record id="seq_department_budget" model="ir.sequence">
+            <field name="name">department.budget</field>
+            <field name="code">department.budget</field>
+            <field name="prefix">DB/</field>
+            <field name="padding">5</field>
+        </record> 
+        <record id="seq_cost_fixed_move" model="ir.sequence">
+            <field name="name">cost.fixed.asset.move</field>
+            <field name="code">cost.fixed.asset.move</field>
+            <field name="prefix">CFM/</field>
+            <field name="padding">5</field>
+        </record>
+         
+         <record id="seq_cost_empty_bottle" model="ir.sequence">
+            <field name="name">costing.empty.bottle</field>
+            <field name="code">costing.empty.bottle</field>
+            <field name="prefix">CEB/</field>
+            <field name="padding">5</field>
+        </record>
          
     </data>
 </odoo>

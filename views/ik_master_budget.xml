@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        
+                        <!-- Master Budget Send Back View -->
+        <record id="master_budget_send_back_wizard" model="ir.ui.view">
+            <field name="name">Return Master Budget</field>
+            <field name="model">master.budget.back</field>
+            <field name="arch" type="xml">
+                <form String="Reason for Returning">
+                    <group>
+
+                        <group>
+                            <field name="memo_record" readonly="1"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="resp" readonly="0"  invisible="1"/>
+                            <field name="direct_memo_user" string ="Initiator"/>
+                            <!--field name="users_followers" widget="many2many_tags" required="1"/-->
+                        </group>
+                            <field name="reason" placeholder="Please Add Reason(s) ..." colspan="4" required="1"/>
+                    <footer>
+                        <button name="post_back" type="object" string="Return" class="oe_highlight"/>
+                            <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+                             <!-- Input Budget Form View -->
+        <record id ="ikoyi_club_department_master_budget_form_view" model ="ir.ui.view">
+            <field name="name">Master Budget</field>
+            <field name="model">master.budget</field>
+            <field eval="25" name="priority"/>
+            <field name ="arch" type="xml">
+                <form string="Master Budget">
+                    <header>                <!-- Approval Buttons -->
+                       <button name="submit_button" type="object" string="Submit" states="draft" icon="fa-registered"  class="btn-primary" attrs="{'invisible': ['|',('state', '!=', 'draft')]}" groups="ikoyi_module.sectional_officer_ikoyi"/>
+						<button name="button_budget_off_to_account" type="object" string="Approve" icon="fa-registered"  states="budget" class="btn-primary" attrs="{'invisible': ['|',('state', '!=', 'budget')]}" groups="ikoyi_module.budget_officer_ikoyi"/>
+						<button name="button_account_to_fam" type="object" string="Approve" states="account" icon="fa-registered"  class="btn-primary" attrs="{'invisible': ['|',('state', '!=', 'account')]}" groups="ikoyi_module.accountant_ikoyi"/>
+						<button name="button_fam_to_hon_tre" type="object" string="Approve" states="fam" icon="fa-registered"  class="btn-primary" attrs="{'invisible': ['|',('state', '!=', 'fam')]}" groups="ikoyi_module.account_boss_ikoyi"/>
+                        <button name="button_hon_trea_to_chair" type="object" string="Approve" states="hon_tre" icon="fa-registered"  class="btn-primary" attrs="{'invisible': ['|',('state', '!=', 'hon_tre')]}" groups="ikoyi_module.honorary_treasurer_ikoyi"/>
+						<button name="button_chair_to_gm" type="object" string="Approve" states="chair" icon="fa-registered"  class="btn-primary" attrs="{'invisible': ['|',('state', '!=', 'chair')]}" groups="ikoyi_module.chairman_ikoyi"/>
+						<button name="button_gm_approves" type="object" string="Approve" states="gm" icon="fa-registered"  class="btn-primary" attrs="{'invisible': ['|',('state', '!=', 'gm')]}" groups="ikoyi_module.gm_ikoyi"/>
+											<!-- Print Buttons -->
+                        
+                        <button name="print_master_report" type="object" string="Print Budget" states="budget,account,fam,hon_tre,chair,gm,done" groups="ikoyi_module.accountant_ikoyi,ikoyi_module.budget_officer_ikoyi,ikoyi_module.account_boss_ikoyi" class="btn-primary"/>
+						
+											<!-- Reject Buttons -->
+						<!--button name="button_reject_budget" type="object" string="Reject" states="budget" class="btn-primary" attrs="{'invisible': ['|',('state', '!=', 'budget')]}" groups="ikoyi_module.budget_officer_ikoyi"/-->
+						<button name="button_reject_account" type="object" string="Reject" 
+                        states="account,fam,hon_tre,chair,gm" icon="fa-registered"
+                        class="btn-primary" 
+                        groups="ikoyi_module.accountant_ikoyi,ikoyi_module.account_boss_ikoyi,
+                        ikoyi_module.honorary_treasurer_ikoyi,ikoyi_module.chairman_ikoyi,ikoyi_module.gm_ikoyi"/>
+						
+                        <field name="state" widget="statusbar" nolabel="1" statusbar_visible="budget,account,fam,hon_tre,chair,gm,done"/>
+
+                    </header>
+                    <!-- <sheet> -->
+                    <div class="oe_title">
+                        <label for="name"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                
+                                <field name="employee_id"/>
+                                <field name="dept_ids"/>
+								<field name="unit_ids"/>
+                                <!-- <field name = "users_followers" widget="many2many_tags" required="0" options="{'no_create': True}"/> -->
+                                <field name="date_from" required="1"/>
+                                <field name="date_to" required="1"/>
+                                 <div class="oe_title">
+                                    <label string="Budgeted Amount"/>
+                                        <h1>
+                                            <field name="total_amount"/> 
+                                        </h1>
+
+                                </div>
+                                <div class="oe_title">
+                                    <label string="Budget Variance"/>
+                                        <h1>
+                                            <p><field name="variance"/></p> 
+                                        </h1>
+
+                                </div>
+                                <div class="oe_title">
+                                    <label string="Budget Variance Before"/>
+                                        <h1>
+                                            <p><field name="budget_variance"/></p>  
+                                        </h1>
+
+                                </div>
+                                <div class="oe_title">
+                                    <label string="Release Amount"/>
+                                        <h1>
+                                            <p><field name="amount_release" string="Release Amount"/></p>
+                                        </h1>
+
+                                </div>
+                                 
+                            </group>
+
+                            <group>
+                                <field name="prepare_date"/>
+                                <field name="apprv_date"/>
+                                <field name="budget_type" options="{'no_create': True}"/>
+                                 
+                                <!-- <field name="branch_id" options="{'no_create': True}"/> -->
+                                <field name="notes"/>
+                                <field widget="binary" height="64" name="file_upload" filename="file_namex" required="0" string="Upload File"/>
+                                <field name="file_namex" invisible="1"/>
+                                <field name="status_progress" widget="percentpie" class="oe_pie" string="Progress(%)"/>
+                            </group>
+                            <group>
+                                <div class="oe_title">
+                                    <label string="Balance"/>
+                                        <h1>
+                                            <p><field name="balance_id"/></p>
+                                        </h1>
+
+                                </div>
+                                <div class="oe_title">
+                                    <label string="Overall Balance"/>
+                                        <h1>
+                                            <p><field name="balance_overall"/></p>  
+                                        </h1>
+
+                                </div>
+                            </group>
+                        </group>
+                        <button name="button_return_budget" type="object" string="Reject" 
+                                    class="oe_right oe_highlight" icon="fa-registered"/>
+                        <notebook>
+                            <page string = "Department Budget Line">
+                                <separator colspan="4" string="Budget"/>
+                                <field name="master_budget_line" string="Budget Line" >
+                                    <tree string="Budget Lines">
+                                     
+                                        <field name="name" required="1"/>
+                                        <field name="dept_ids"/>
+                                        <field name="apprv_date"/>
+                                        <field name="budget_type" options="{'no_create': True}"/>
+                                        <field name="total_amount"/>
+                                       <field name="total_balance_amount"/> 
+                                       <field name="variance" string="Total Variance"/>
+                                       <field name="return_check"/>
+                                        
+
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    <!-- </sheet> -->
+                </form>
+            </field>
+        </record>
+        <record id ="master_main_budget_tree_view" model ="ir.ui.view">
+            <field name="name">Master budget Tree</field>
+            <field name="model">master.budget</field>
+            <field eval="25" name="priority"/>
+            <field name ="arch" type="xml">
+                <tree string="Master budget">
+                    <field name="name"/>
+                    <field name="prepare_date"/> 
+                    <field name="variance"/>
+                    <field name="budget_variance"/>
+                    <field name="amount_release"/>
+                    <field name="balance_id"/>
+                    <field name="balance_overall"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                </tree>
+            </field>
+        </record>
+
+           
+      <record model="ir.ui.view" id="ikoyi_master_budget_search_view">
+      	<field name="name">Ikoyi Budget Search</field>
+		    <field name="model">master.budget</field>
+		    <field name="arch" type="xml">
+				 <search string="Budget Input Filter">
+
+						<field name="name"/>
+						<field name="state" />  
+                        <field name="employee_id" />
+
+					 <group expand="0" string="Group By">
+				       <filter string="Name" icon="terp-personal" domain="[]" context="{'group by':'name'}" />
+				       <filter string="Employee" icon="terp-personal" domain="[]" context="{'group by':'employee_id'}" />
+
+                       <filter string="State" icon="terp-personel" domain="[]" context="{'group by':'state'}" />
+                    </group>
+			  </search>
+		 	</field>
+	  </record>
+                   
+                		<!-- Budget Input Lines action  -->
+        <record id="ikoyi_budget_master_action" model="ir.actions.act_window">
+            <field name="name">Budget Lines</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">master.budget</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                .
+              </p>
+            </field>
+        </record>
+ 
+		
+                <menuitem id="sub_menu_account_budget_input" name="Master Budget" parent="ikoyi_module.menu_ikoyi_depart_budget" 
+                action="ikoyi_budget_master_action" sequence="2" 
+                />
+
+ 
+    </data>
+</odoo>

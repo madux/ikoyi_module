@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+      
+        <record model="ir.ui.view" id="stock_inventory_inherited_form" >
+            <field name="name">stock.inventory</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_done']" position="after">
+                    <button name="get_current_stock" state="confirm,done" type="object" 
+                    icon="fa-refresh" aria-label="Refresh" class="oe_highlight" 
+                    string="See Current Stocks"/>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']" position="before">
+                    <button name="open_breakage_form" state="confirm,done" type="object" 
+                    class="oe_right oe_highlight" string="Open Breakage Form"
+                    style="width: 215px !important;margin-right: 1%;margin-top: 3%;border:none;"/>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_qty']" position="after">
+                    <field name="current_stock_qty" invisible="0" readonly="1"/>
+                    <field name="is_breakage" invisible="0"/>
+                </xpath>
+ 
+            </field>
+        </record>
+ 
+        <menuitem name="Display Stock" id="menu_for_ikoyi_inventory_display" sequence="11" action ="product.product_normal_action" parent ="stock.menu_stock_warehouse_mgmt"/>
+        <menuitem name="Circulating Asset" id="menu_for_ikoyi_inventory_circulating_asset" sequence="12" action ="stock.action_inventory_form" parent ="stock.menu_stock_warehouse_mgmt"/>
+        
+        <menuitem name="Circulating Asset" id="menu_for_ikoyi_inventory_cost_circulating_asset" sequence="15" parent ="ikoyi_module.costing_managment_menu"/>
+        <menuitem name="Circulating Asset" id="menu_for_ikoyi_cost_circulating_asset" sequence="1" action ="stock.action_inventory_form" parent ="ikoyi_module.menu_for_ikoyi_inventory_cost_circulating_asset"/>
+        
+        
+
+    </data>
+</odoo>

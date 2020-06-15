@@ -152,7 +152,7 @@ class Goods_Return(models.Model):
         index=True,
         copy=False,
         )
-    origin = fields.Char('Source Document', compute="Get_Stock", copy=False,)
+    origin = fields.Char('Source Document', store=True, compute="Get_Stock", copy=False,)
     currency_id = fields.Many2one(
         'res.currency',
         'Currency',
@@ -160,12 +160,22 @@ class Goods_Return(models.Model):
         states=READONLY_STATES,
         default=lambda self: self.env.user.company_id.currency_id.id)
     
+     
+
+    def get_stock_status(self):
+        items = self.env['stock.picking'].search([])# ([('state','=', 'done')])
+        ids = [z.id for z in items]
+        domain =[('id', '=', ids)]
+        return domain
+        
     stock_id = fields.Many2one(
         'stock.picking',
         string="Stock Move (GRN) ID", 
-        copy=False, 
+        copy=False, domain=lambda self: self.get_stock_status(),
         required=True,
         )
+
+    
     
     stock_in_id = fields.Many2one(
         'stock.picking',
@@ -196,22 +206,20 @@ class Goods_Return(models.Model):
     
     branch_id = fields.Many2one(
         'res.branch',
-        string="Section",
+        string="Section", store=True,
         default=lambda self: self.env.user.branch_id.id,
-        help="Tell Admin to set your branch... (Users-->Preferences-->Allowed Branch)",compute="Get_Product_of_Stock")
+        help="Tell Admin to set your branch... (Users-->Preferences-->Allowed Branch)")
 
     location = fields.Many2one(
         'stock.location',
-        string = 'Stock Location', compute="Get_Product_of_Stock", domain=[('usage','=','supplier')],
+        string = 'Stock Location',store=True, domain=[('usage','=','supplier')],
         help="Go to inventory config, set branch for warehouse and location")
     
-    location_dest = fields.Many2one('stock.location', string="Destination Location", 
-                                    compute="Get_Product_of_Stock",
-                                    domain=[('usage','=','internal')])
+    location_dest = fields.Many2one('stock.location', string="Destination Location", store=True, domain=[('usage','=','internal')])
                
     purchase_order_id = fields.Many2one(
         comodel_name="purchase.order",
-        string='Purchase Order', copy=False,compute="Get_Product_of_Stock")
+        string='Purchase Order', copy=False)
     
     file_upload = fields.Binary('File Upload', 
     )
@@ -247,34 +255,28 @@ class Goods_Return(models.Model):
         'res.partner',
         string='Vendor',
         default=default_partner_id,
-        track_visibility='always',compute="Get_Product_of_Stock")
+        track_visibility='always')
     notes = fields.Text('Terms and Conditions')
     total_amount = fields.Float('Total Items to Return',store=True,compute="get_total")
     total_amount_cost = fields.Float('Total Cost of Item',store=True,compute="get_total")
     description_two = fields.Text('Refusal Reasons')
     
-    @api.depends('stock_id')
-    @api.one
+    @api.onchange('stock_id')
     def Get_Product_of_Stock(self):
         po_obj = self.env['purchase.order']
         if self.stock_id:
             po_search = po_obj.search([('name', 'ilike', self.stock_id.origin)])
-            po_id = 0
             if po_search:
                 po_id = po_search.id
+                self.purchase_order_id = po_id
             else:
                 pass # raise ValidationError('No PO found for the GRN')
-                    
-        for rec in self:
-            for tec in rec.stock_id:
-                rec.update({# 'location': tec.location_id.id,
-                            'origin': tec.origin,
-                            # 'location_dest': tec.location_dest_id.id,
-                            'branch_id': tec.branch_id.id,
-                            'purchase_order_id': po_id,
-                            'partner_id': po_search.partner_id.id,})
+            self.write({
+                'origin': self.stock_id.origin,
+                'partner_id': self.stock_id.partner_id.id,
+            })
+            
          
-    
     @api.one
     @api.depends('order_line')
     def get_total(self):
@@ -304,10 +306,12 @@ class Goods_Return(models.Model):
         body = "Dear Sir, <br/>A GRO with reference Number: {} have been sent for confirmation.\
             Kindly {} to view. <br/>\
             Regards".format(self.name,self.get_url(self.id, self._name))
-        check_return = self.mapped('order_line').filtered(lambda check:check.qty < 1)   
+        if not self.partner_id:
+            raise ValidationError('You must Set a Vendor')
+        check_return = self.mapped('order_line').filtered(lambda check:check.qty <= 0)   
         if check_return:
-            pass
-            #raise ValidationError('You must Set the Returned quantity to be greater than 0')
+            # pass
+            raise ValidationError('You must Set the Returned quantity to be greater than 0')
         return self.send_mail_manager(body)
     
     @api.multi
@@ -319,8 +323,13 @@ class Goods_Return(models.Model):
             Regards".format(self.name, self.partner_id.name,self.get_url(self.id, self._name))
         return self.send_mail_all(body)
     
+    def get_internal_picking_type(self):
+        pick_type = self.env['stock.picking.type'].search([('name', '=', 'Internal Transfers')], limit=1)
+        return pick_type.id
+    
     picking_type_id = fields.Many2one(
-        'stock.picking.type', 'Picking Type')
+        'stock.picking.type', 'Picking Type', 
+        default=lambda self : self.get_internal_picking_type())
         # states={'update': [('readonly', False)],'store_manager': [('readonly', False)]})
 
     picking_type_code = fields.Selection([
@@ -328,10 +337,17 @@ class Goods_Return(models.Model):
         ('outgoing', 'Customers'),
         ('internal', 'Internal')],string='Operation Type',
        required=False, related='picking_type_id.code', states={'draft': [('readonly', False)]})
- 
+    
+    def destination_location_id(self):
+        location_ref = self.env['stock.location'].search(['|', ('name', '=', 'Vendors'),
+        ('usage', '=', 'supplier')], limit=1)
+        return location_ref.id
+
     @api.multi
     def return_goods(self):
         # return self.goods_reference(self.stock_id)
+        location_ref = self.env['stock.location'].search(['|', ('name', '=', 'Vendors'),
+        ('usage', '=', 'supplier')], limit=1)
         uom = self.env['product.uom'].search([('name', 'ilike', 'Unit(s)')]).id
         picking = self.env['stock.picking']
         partner_id = 0 
@@ -346,7 +362,7 @@ class Goods_Return(models.Model):
                     'partner_id':partner_id,
                     'min_date': self.date_order,
                     'location_id': self.picking_type_id.default_location_src_id.id, #locate_out[0].id,
-                    'location_dest_id': self.picking_type_id.default_location_src_id.id,# locate_in[0].id,
+                    'location_dest_id': self.destination_location_id(),
                     'branch_id': self.env.user.branch_id.id,
                     'picking_type_id': self.picking_type_id.id,
                     'picking_type_code': self.picking_type_id.code
@@ -355,20 +371,20 @@ class Goods_Return(models.Model):
         pick_id = picking.create(value_obj)
         pick_browse = picking.browse([pick_id.id])           
         for line in self.order_line:
-            lines = {'name':"Requisition Request from {}".format(self.employee_id.name),
+            lines = {'name':"Goods Return from {}".format(self.employee_id.name),
                     'product_id':line.product_id.id,
-                     'product_uom_qty':line.qty,
-                     'product_uom': uom, # line.label.id,
-                     'location_id': line.product_id.picking_source_location_id.id, #locate_out[0].id,
-                     'location_dest_id': line.product_id.picking_destination_location_id.id,
+                    'product_uom_qty':line.qty,
+                    'product_uom': uom, # line.label.id,
+                    'location_id': self.picking_type_id.default_location_src_id.id, #locate_out[0].id,
+                    'location_dest_id': self.destination_location_id(),
                      }
 
             pick_browse.write({'move_lines':[(0,0, lines)]})
         # pick_browse.action_confirm()
         self.origin = pick_browse.name
         self.stock_id = pick_id.id
-        xxxxlo = self.env['stock.picking'].search([('id', '=', pick_id.id)])
-        if not xxxxlo:
+        reference_id = self.env['stock.picking'].search([('id', '=', pick_id.id)])
+        if not reference_id:
             raise ValidationError('There is no related Pickings Created.')
         resp = {
             'type': 'ir.actions.act_window',
@@ -377,14 +393,14 @@ class Goods_Return(models.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'current',
-            'res_id': xxxxlo.id
+            'res_id': reference_id.id
         }
         return resp
         
     
     def goods_reference(self, stock_id):
-        xxxxlo = self.env['stock.picking'].search([('id', '=', stock_id.id)])
-        if not xxxxlo:
+        reference_id = self.env['stock.picking'].search([('id', '=', stock_id.id)])
+        if not reference_id:
             raise ValidationError('There is no related Pickings Selected.')
         resp = {
             'type': 'ir.actions.act_window',
@@ -393,7 +409,7 @@ class Goods_Return(models.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'current',
-            'res_id': xxxxlo.id
+            'res_id': reference_id.id
         }
         return resp
     
@@ -491,25 +507,24 @@ class Goods_Return(models.Model):
             Kindly {} to approve. <br/>\
             Regards".format(self.name,self.partner_id.name,self.get_url(self.id,self._name))
             
-        # moves = self.mapped('order_line').filtered(lambda move: move.receive_qty < 1)
-        ## moves = [rec for rec in self.order_line if rec.receive_qty < 1]
-        # if moves:
-        #     raise ValidationError('You must Set the received quantity to be greater than 0')  
+        moves = self.mapped('order_line').filtered(lambda move: move.receive_qty < 1)
+        if moves:
+            raise ValidationError('You must Set the received quantity to be greater than 0')  
             
         #import pdb; pdb.set_trace()  
         return self.send_mail_manager(body)
     
-    @api.multi
-    def manager_two_approve(self): # manager_two  manager
-        self.write({'state':'account'})
-        body = "Dear Sir, <br/>Prior to the GRO with reference Number: {} the goods have been returned by the vendor:\
-             {}. Also GRN have been generated by the Store.\
-            Kindly {} to view. <br/>\
-            Regards".format(self.name, self.partner_id.name,self.get_url(self.id, self._name))
+    # @api.multi
+    # def manager_two_approve(self): # manager_two  manager
+        # self.write({'state':'account'})
+        # body = "Dear Sir, <br/>Prior to the GRO with reference Number: {} the goods have been returned by the vendor:\
+        #      {}. Also GRN have been generated by the Store.\
+        #     Kindly {} to view. <br/>\
+        #     Regards".format(self.name, self.partner_id.name,self.get_url(self.id, self._name))
             
-        self.send_mail_all(body)
-        return self.goods_reference(self.stock_in_id)
-        # return self.create_picking()
+        # self.send_mail_all(body)
+        # return self.goods_reference(self.stock_in_id)
+        # # return self.create_picking()
         
     
     @api.multi
@@ -534,8 +549,8 @@ class Goods_Return(models.Model):
         value_obj = {
                     'partner_id':partner_id,
                     'min_date': self.date_order,
-                    'location_id': self.picking_type_id.default_location_src_id.id, #locate_out[0].id,
-                    'location_dest_id': self.picking_type_id.default_location_src_id.id,# locate_in[0].id,
+                    'location_id': self.destination_location_id(), #locate_out[0].id,
+                    'location_dest_id': self.picking_type_id.default_location_src_id.id,
                     'branch_id': self.env.user.branch_id.id,
                     'picking_type_id': self.picking_type_id.id,
                     'picking_type_code': self.picking_type_id.code
@@ -548,16 +563,16 @@ class Goods_Return(models.Model):
                     'product_id':line.product_id.id,
                      'product_uom_qty':line.receive_qty,
                      'product_uom': uom, # line.label.id,
-                     'location_id': line.product_id.picking_source_location_id.id, #locate_out[0].id,
-                     'location_dest_id': line.product_id.picking_destination_location_id.id,
-                     }
+                     'location_id': self.destination_location_id(), #locate_out[0].id,
+                     'location_dest_id': self.picking_type_id.default_location_src_id.id,
+                    }
 
             pick_browse.write({'move_lines':[(0,0, lines)]})
         # pick_browse.action_confirm()
         self.origin = pick_browse.name
-        self.stock_id = pick_id.id
-        xxxxlo = self.env['stock.picking'].search([('id', '=', pick_id.id)])
-        if not xxxxlo:
+        self.stock_in_id = pick_id.id
+        references = self.env['stock.picking'].search([('id', '=', pick_id.id)])
+        if not references:
             raise ValidationError('There is no related Pickings Created.')
         resp = {
             'type': 'ir.actions.act_window',
@@ -566,7 +581,7 @@ class Goods_Return(models.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'current',
-            'res_id': xxxxlo.id
+            'res_id': references.id
         }
         return resp
       
@@ -892,13 +907,13 @@ class Ikoyi_Journal(models.Model):
             if accpay:
                 self.revenue_account_pay = accpay
             else:
-                raise('No Vendor payable account found')
+                raise ValidationError('No Vendor payable account found')
             if accrec:
                 self.revenue_account_rec = accrec
             else:
-                raise('No Vendor Receivable account found')
+                raise ValidationError('No Vendor Receivable account found')
         else:
-            raise('You must select a vendor')
+            raise ValidationError('You must select a vendor')
             
 
     @api.one
@@ -996,7 +1011,12 @@ class Goods_return_Line(models.Model):
     @api.onchange('qty','receive_qty')
     def get_remain_qty(self):
         self.remain_qty = self.qty - self.receive_qty
-         
+    
+    @api.constrains('qty')
+    def check_Qty_initial(self):
+        if self.qty > self.initial_qty:
+            raise ValidationError('You cannot set the Quantity to return to be greater than Initial Quantity')
+
     location = fields.Many2one(
         'stock.location',
         string = 'Stock Location', required=False,

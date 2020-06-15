@@ -106,18 +106,27 @@
                     <field name="state" widget="statusbar" statusbar_visible="officer,pm,draft,sent,purchase" readonly="1"/>
                 </xpath>
                 <xpath expr="//button[@id='bid_confirm']" position="before">
-                    <button name="button_request_approval_by_officer" type="object" states="officer" class="oe_highlight" string="Send to PM"
+                    <button name="button_officer_to_pm" type="object" states="officer" class="oe_highlight" string="Send to PM"
                     groups="ikoyi_module.procurement_officer_ikoyi,purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"/>
             </xpath>
                 <xpath expr="//button[@id='draft_confirm']" position="before">
 
-                    <button name="button_request_approval_by_pm" type="object" states="pm" class="oe_highlight" string="Generate Request"
+                    <button name="button_lpo_from_pm_to_admin_manager" type="object" states="pm" class="oe_highlight" string="Approve"
                     groups="purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"
-                    attrs="{'invisible':[('state', 'in',['officer','draft','sent','purchase','done']),('state_mode', 'not in', ['fixed'])]}"/>
-                    <button name="button_refuse" type="object" states='officer,pm' string="Reject" class="oe_highlight"
-                     groups="ikoyi_module.procurement_officer_ikoyi,purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"/>
+                    attrs="{'invisible':[('state', 'in',['officer','draft','sent','admin','gm','to approve','purchase','done'])]}"/>
+
+                    <button name="button_lpo_from_admin_to_gm" invisible="1" type="object" states="admin" class="oe_highlight" string="Approve"
+                    groups="ikoyi_module.admin_management_ikoyi"/>
+
+                    <button name="button_lpo_gm_approval" type="object" states="gm" class="oe_highlight" string="Approve"
+                    groups="ikoyi_module.gm_ikoyi" invisible="1"/>
+                    
+                    <button name="button_refuse" type="object" states='officer,pm' string="Reject"
+                     attrs="{'invisible':[('state', 'in',['officer','draft','admin', 'gm','sent', 'to approve'])]}"
+                     groups="ikoyi_module.admin_management_ikoyi,purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi,ikoyi_module.gm_ikoyi"/>
 
                     <button name="button_print_purchases" type="object" string="Print PO" class="oe_highlight"
+                     attrs="{'invisible':[('state', 'in',['officer','draft','sent','purchase','pm','gm','admin'])]}"
                      groups="ikoyi_module.procurement_officer_ikoyi,purchase.group_purchase_manager,ikoyi_module.procurement_manager_ikoyi"/>
 
                 </xpath>
@@ -418,7 +427,7 @@
 
                     <button name="button_internal_to_conditions" type="object" states='inter_control' string="Approve" class="oe_highlight"
                     confirm="Are you sure you want to confirm"
-                    groups="ikoyi_module.audit_boss_ikoyi" />
+                    groups="ikoyi_module.audit_boss_ikoyi,ikoyi_module.internal_control_ikoyi" />
 
                     <button name="button_generalmanager_to_vice_chairman" type="object" states='general_manager_one' string="Approve" class="oe_highlight"
                     groups="ikoyi_module.gm_ikoyi"/>
@@ -431,9 +440,14 @@
                     confirm="Are you sure you want to confirm"
                     groups="ikoyi_module.chairman_ikoyi" />
 
-                    <button name="button_procure_officer_raise_po" type="object" states='done' string="Request Procurement" class="oe_highlight"
+                    <!-- <button name="button_procure_officer_raise_po" type="object" states='done' string="Request Procurement" class="oe_highlight"
+                    confirm="Please confirm that the Todo Qty are your Intentions or greater than 1?"
+                    groups="ikoyi_module.procurement_officer_ikoyi,ikoyi_module.procurement_manager_ikoyi" /> -->
+                    <button name="button_procurement_creates_LPO" type="object" states='done' string="Confirm PO Request" class="oe_highlight"
                     confirm="Please confirm that the Todo Qty are your Intentions or greater than 1?"
                     groups="ikoyi_module.procurement_officer_ikoyi,ikoyi_module.procurement_manager_ikoyi" />
+
+                    <button name="button_approve_LPO" type="object" states='procurement_state' string="Confirm PO" class="oe_highlight" groups="ikoyi_module.procurement_officer_ikoyi,ikoyi_module.procurement_manager_ikoyi" />
 
                     <button name="button_procure_manager_send_to_admin_manager_2" type="object" states='procurement_manager_two' string="Approve" class="oe_highlight"
                     confirm="Are you sure you want to confirm"
@@ -448,10 +462,7 @@
                     confirm="Are you sure you want to confirm"
                     groups="ikoyi_module.gm_ikoyi" />
 
-                    <button name="button_procurement_creates_LPO" type="object" states='procurement_state' string="Confirm PO Request" class="oe_highlight"
-                    confirm="Are you sure you want to confirm" 
-                    groups="ikoyi_module.procurement_officer_ikoyi,ikoyi_module.procurement_manager_ikoyi" />
-
+                    
                     <button name="button_reject_all" type="object" 
                         states="store_manager_one,inter_control,admin_manager,procurement_manager_one,procurement_manager_two,admin_manager_two,general_manager_two,general_manager_one,vice,chair"
                         class="btn-primary" string="Reject"
@@ -802,7 +813,7 @@
                                 <field name = "vendor_account"/>
                                 <field name = "vendor_bank"/>
                                 <field name = "select_mode" string="Operation Type" />
-                                <field name = "ikoyi_ref" required="1" invisible="0"/>
+                                <field name = "ikoyi_ref" attrs="{'required':[('select_mode','in',['mat'])], 'invisible':[('select_mode','in',[False,'lab','pur'])]}"/>
                                 
                                 <field name = "purchase_id"/> 
                                 <!-- attrs="{'invisible':[('ikoyi_ref','!=', True)],'required':[('ikoyi_ref','=','True')]}" /> -->
@@ -814,7 +825,7 @@
                                
                                 <field name = "pay_amount"/>
                                 <field name = "product_qty" invisible="1"/>
-                                <field name = "invoice_ids" invisible="1"/>
+                                <field name = "invoice_ids" invisible="0"/>
                                 <!-- attrs="{'required':[('select_mode','in',['mat','pur'])]}" /> -->
                                 <field name = "pay_account" string="Journal"/>
                                 <field name="file_upload" filename="binary_fname"/>
@@ -1046,7 +1057,7 @@
         string="Raise LPO"
         groups="ikoyi_module.procurement_manager_ikoyi,base.group_system"/>
 
-    <button name="Finance_admin_to_GMTWO" type="object" states="finance_manager_two" class="oe_highlight"
+    <!-- <button name="Finance_admin_to_GMTWO" type="object" states="finance_manager_two" class="oe_highlight"
         string="Send to GM-"
         groups="ikoyi_module.account_boss_ikoyi,base.group_system"/>
     <button name="GMTWO_Procurement" type="object" states="general_manager_two" class="oe_highlight"
@@ -1056,7 +1067,7 @@
 
     <button name="Procurement_to_ConfirmS" type="object" states="procurement_manager_two" class="oe_highlight"
         string="Create Purchase Order"
-        groups="ikoyi_module.procurement_manager_ikoyi,base.group_system"/>
+        groups="ikoyi_module.procurement_manager_ikoyi,base.group_system"/> -->
 
 
         <field name="state" widget="statusbar" statusbar_visible="draft,finance_manager_one,general_manager_one,done,pm_done"/>
@@ -1107,20 +1118,20 @@
 
                         <page string = "Product OrderLines">
                             <separator colspan="4" string="Materials"/>
-                            <field name="order_line" context="{'ware':warehouse}">
+                            <field name="order_line" context="{'ware':warehouse, 'default_branch_id': branch_id}">
                                 <tree string="Product Lines" editable="bottom">
-
-                                    <field name="branch_id"/>
-                                    <field name="warehouse"/>
-                                    <field name="date_planned" invisible="0" required="1"/>
+                                    <field name="branch_id" invisible="1"/>
+                                    <field name="warehouse" invisible="1"/>
                                     <field name="product_id"/>
-                                    <field name="name"/>
+                                    <field name="capex_num"/>
+                                    <field name="name" string="Description"/>
                                     <field name="label"/>
-                                    <field name="actual_qty" string="Stock Qty" readonly="1"/>
+                                    <field name="date_planned" invisible="0" required="1"/>
+                                    <field name="actual_qty" invisible="1" string="Stock Qty" readonly="1"/>
                                     <field name="qty" required="1"/>
-                                    <field name="rate"/>
+                                    <field name="rate" string='Rate'/>
                                     <field name="remaining_qty" invisible="1" string="Stock Rem.Qty"/>
-                                    <field name="actual_price" string="Costing Price"/>
+                                    <field name="actual_price" string="Cost Price"/>
                                     <field name="total"/>
                                 </tree>
                             </field>

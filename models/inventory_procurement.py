@@ -479,8 +479,9 @@ class ConstructionMaterial_Line(models.Model):
         if self.used_qty > self.qty:
             raise ValidationError('All approved products have been used... \n\
                 or the Sum of Used and Todo Qty is Greater the requested Quantity')
-        if result > self.qty:
-            raise ValidationError('You have exceeded the number of requested Quantity')
+        if self.state == "done":
+            if result > self.qty:
+                raise ValidationError('You have exceeded the number of requested Quantity')
             
     @api.model
     def _get_context_warehouse(self):
@@ -600,22 +601,39 @@ class ConstructionMaterial_Line(models.Model):
                     products.append(ref.product_id.id)
                     domain = {'product_id': [('id', 'in', products)]}
             return {'domain': domain}
+    # @api.one
+    # @api.depends('product_id')
+    # def Quantity_MovesA(self):
+    #     diff = 0.0
+    #     # for rec in self:
+    #     stock_location = self.env['stock.location']
+    #     search_location = stock_location.search(
+    #             [('branch_id', '=', self.branch_id.id)])
+    #     for r in search_location:
+    #         stock_quant = self.env['stock.quant']
+    #         search_quanty = stock_quant.search(
+    #                 [('location_id', '=', r.id), ('product_id', '=', self.product_id.id)])
+    #         if search_quanty:
+    #             for rey in search_quanty:
+    #                 diff += rey.qty
+    #     self.actual_qty = diff
+
     @api.one
     @api.depends('product_id')
     def Quantity_Moves(self):
         diff = 0.0
-        # for rec in self:
-        stock_location = self.env['stock.location']
-        search_location = stock_location.search(
-                [('branch_id', '=', self.branch_id.id)])
-        for r in search_location:
-            stock_quant = self.env['stock.quant']
-            search_quanty = stock_quant.search(
-                    [('location_id', '=', r.id), ('product_id', '=', self.product_id.id)])
+        stock_quant = self.env['stock.quant']
+        if self.product_id:
+            search_quanty = stock_quant.search([('location_id.branch_id', '=', self.env.user.branch_id.id),
+                ('product_id', '=', self.product_id.id)])
+
             if search_quanty:
                 for rey in search_quanty:
                     diff += rey.qty
-        self.actual_qty = diff
+                self.actual_qty = diff
+                
+            else:
+                raise ValidationError('No Product found in the inventory')
 
     @api.one
     @api.depends('actual_price', 'taxes_id', 'qty')
@@ -839,14 +857,16 @@ class PurchaseOrder(models.Model):
     
     state = fields.Selection([
         ('officer', 'Officer'),
-        ('pm', 'PM'),
         ('draft', 'RFQ'),
         ('sent', 'RFQ Sent'),
+        ('pm', 'PM'),
+        ('admin', 'Admin Manager'),
+        ('gm', 'General Manager'),
         ('to approve', 'To Approve'),
         ('purchase', 'Purchase Order'),
         ('done', 'Locked'),
         ('cancel', 'Cancelled'),
-    ], string='Status', readonly=True, index=True, copy=False, default='draft', track_visibility='onchange')
+    ], string='Status', readonly=True, index=True, copy=False, default='officer', track_visibility='onchange')
     set_value = fields.Selection([
         ('gen', 'Generate'), ('nogen', 'Non Generate'), ('addgen', 'Done')
     ], string='Status', readonly=False, index=True, copy=False, track_visibility='always')
@@ -864,14 +884,44 @@ class PurchaseOrder(models.Model):
                                   default='purchase',
                                   track_visibility='onchange')
 
-    # @api.multi
-    # def button_request_approval_by_officer(self):
-    #     for rec in self:
-    #         rec.write({'state': 'pm'})
+    @api.multi
+    def button_officer_to_pm(self):
+        for rec in self:
+            rec.send_mail_to_pm()
+            rec.write({'state': 'pm'})
+        return True
+
+    @api.multi
+    def button_lpo_from_pm_to_admin_manager(self):
+        ikoyi_request = self.env['ikoyi.request'].search([('purchase_order_id', '=', self.id)], limit=1)
+        if ikoyi_request:
+            self.state = 'admin'
+            ikoyi_request.button_procure_manager_send_to_admin_manager_2()
+
+        # for rec in self:
+
+        #     rec.send_mail_to_pm()
+        #     rec.write({'state': 'admin'})
+        # return True
+
+    @api.multi
+    def button_lpo_from_admin_to_gm(self):
+        for rec in self:
+            rec.send_mail_from_admin_to_gm()
+            rec.write({'state': 'gm'})
+        return True
+
+    @api.multi
+    def button_lpo_gm_approval(self):
+        for rec in self:
+            # rec.send_gm_approval_to_procure()
+            rec.write({'state': 'to approve'})
+        return True
 
     @api.multi
     def button_refuse(self):
-        return self.button_return_request_back()
+        self.state = "officer"
+        # return self.button_return_request_back()
         #  return {}
 
     @api.multi
@@ -993,6 +1043,7 @@ class PurchaseOrder(models.Model):
             
         return res
 
+
     @api.multi
     def send_all_mail(self):
         email_from = self.env.user.email
@@ -1014,6 +1065,75 @@ class PurchaseOrder(models.Model):
             group_user_id2,
             group_user_id3,
             bodyx)
+
+    @api.multi
+    def send_mail_to_pm(self):
+        email_from = self.env.user.email
+        group_user_id2 = self.env.ref('ikoyi_module.procurement_manager_ikoyi').id
+        group_user_id = self.env.ref('ikoyi_module.procurement_manager_ikoyi').id
+        group_user_id3 = self.env.ref('ikoyi_module.procurement_officer_ikoyi').id
+        bodyx = "Dear Sir/Madam, </br>We wish to notify you that a request from {} has been sent to you for approval </br> \
+            </br>Kindly {} </br> </br>Thanks".format(self.employee_id.name, self.get_url(self.id, self._name))
+        self.mail_sending(
+            email_from,
+            group_user_id,
+            group_user_id2,
+            group_user_id3,
+            bodyx)
+
+    @api.multi
+    def send_mail_from_pm_to_admin_manager(self):
+        email_from = self.env.user.email
+        group_user_id2 = self.env.ref('ikoyi_module.procurement_manager_ikoyi').id
+        group_user_id = self.env.ref('ikoyi_module.admin_management_ikoyi').id
+        group_user_id3 = self.env.ref('ikoyi_module.procurement_officer_ikoyi').id
+        bodyx = "Dear Sir/Madam, </br>We wish to notify you that a request from {} has been sent to you for approval </br> \
+            </br>Kindly {} </br> </br>Thanks".format(self.employee_id.name, self.get_url(self.id, self._name))
+        self.mail_sending(
+            email_from,
+            group_user_id,
+            group_user_id2,
+            group_user_id3,
+            bodyx)
+
+    @api.multi
+    def send_mail_from_admin_to_gm(self):
+        email_from = self.env.user.email
+        group_user_id2 = self.env.ref('ikoyi_module.gm_ikoyi').id
+        group_user_id = self.env.ref('ikoyi_module.gm_ikoyi').id
+        group_user_id3 = self.env.ref('ikoyi_module.procurement_manager_ikoyi').id
+        bodyx = "Dear Sir/Madam, </br>We wish to notify you that a request from {} has been sent to you for approval </br> \
+            </br>Kindly {} </br> </br>Thanks".format(self.employee_id.name, self.get_url(self.id, self._name))
+        self.mail_sending(
+            email_from,
+            group_user_id,
+            group_user_id2,
+            group_user_id3,
+            bodyx)
+
+    @api.multi
+    def send_gm_approval_to_procure(self):
+        email_from = self.env.user.email
+        group_user_id2 = self.env.ref('ikoyi_module.procurement_manager_ikoyi').id
+        group_user_id = self.env.ref('ikoyi_module.admin_management_ikoyi').id
+        group_user_id3 = self.env.ref('ikoyi_module.procurement_officer_ikoyi').id
+
+        bodyx = "Dear Sir, <br/>The purchase order with the reference number: {} have been approved by general manager to proceed. \
+        Please {} <br/>\
+        Regards".format(
+            self.name,
+            self.employee_id.name,
+            self.get_url(
+                self.id,
+                self._name))
+        self.mail_sending(
+            email_from,
+            group_user_id,
+            group_user_id2,
+            group_user_id3,
+            bodyx)
+
+    
 
     # @api.multi
     # def create_invoice(self):  # invoice memoficer
@@ -1185,7 +1305,7 @@ class Ikoyi_Memo_Request(models.Model):
         ('chair', 'Chairman'),
         ('schedule', 'Payment Requisition'),
         ('done', 'Done'),
-        ('cancel', 'Completed'),
+        ('cancel', 'Completed'), # this was used in order not to tampered product records,
         ('refused', 'Refused'),
     ], string='Status', readonly=True, index=True, copy=False, default='store_officer_one', track_visibility='onchange')
 
@@ -1520,6 +1640,8 @@ class Ikoyi_Memo_Request(models.Model):
         Regards".format(self.mof_ref.name, self.employee_id.name, self.get_url(self.id, self._name))
         self.mail_sending(email_from, group_user_id, bodyx)
         self.write({'state': 'general_manager_two','description_two':'',})
+        purchase_id = self.mapped('purchase_lines')[-1]
+        purchase_id.button_lpo_from_admin_to_gm()
         
     @api.multi
     def button_generalmanager_to_done_procure(self):  #  general_manager_two
@@ -1527,13 +1649,31 @@ class Ikoyi_Memo_Request(models.Model):
         group_user_id = self.env.ref('ikoyi_module.procurement_manager_ikoyi').id
         extra = self.employee_id.work_email
         self.write({'state': 'procurement_state','description_two':'',})   
-        bodyx = "Dear Sir, <br/>A request with MOF reference Number: {} have been raised by {} and is waiting for your approval. Please kindly {} to Review <br/>\
+        bodyx = "Dear Sir, <br/>A request with MOF reference Number: {} have been approved by {} (General Manager). Please kindly {} to Review <br/>\
         Regards".format(self.mof_ref.name, self.employee_id.name, self.get_url(self.id, self._name))
         self.mail_sending(email_from, group_user_id, bodyx)
+        purchase_id = self.mapped('purchase_lines')[-1]
+        purchase_id.button_lpo_gm_approval()
         
-    def button_procurement_creates_LPO(self): # procurement_state
-        self.procure_btn()
-        self.reorder = False
+    def button_procurement_creates_LPO(self): # done
+        self.check_and_request()
+        if not self.purchase_order_id:
+            self.procure_btn()
+            self.reorder = False
+            resp = {
+                'type': 'ir.actions.act_window',
+                'name': _('Purchase Reference'),
+                'res_model': 'purchase.order',
+                'view_type': 'form',
+                'view_mode': 'form', 
+                'target': 'current',
+                'res_id': self.mapped('purchase_lines')[-1].id# self.purchase_order_id.id
+            }
+            return resp
+        else:
+            return self.po_reference()
+
+    def po_reference(self):
         resp = {
             'type': 'ir.actions.act_window',
             'name': _('Purchase Reference'),
@@ -1545,6 +1685,19 @@ class Ikoyi_Memo_Request(models.Model):
         }
         return resp
     
+    def button_approve_LPO(self): # procurement_state
+        self.write({'state':'cancel'})
+        resp = {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Reference'),
+            'res_model': 'purchase.order',
+            'view_type': 'form',
+            'view_mode': 'form', 
+            'target': 'current',
+            'res_id': self.mapped('purchase_lines')[-1].id# self.purchase_order_id.id
+        }
+        return resp
+
     @api.multi
     def procure_btn(self, context=None):
         self.check_and_request()
@@ -1619,7 +1772,7 @@ class Ikoyi_Memo_Request(models.Model):
                 # if self.state == "procurement_state":
                 #     rec.used_qty += rec.todo_qty
         else:
-            raise ValidationError('Please Add order line before requesting')
+            raise ValidationError('Please Add Requesting Qty order line before requesting')
     
     # def refresh_order_lines(self):
     #     # po_line = self.purchase_order_id.mapped('order_line').filtered(lambda s: s.qty_received > 0)
@@ -2184,9 +2337,10 @@ class IkoyiRefuse_Message(models.Model):
         'hr.employee', string='Add followers', required=True)
  
     def reject_state_determinator(self):
-        mof = self.env['ikoyi.request'].search(
-            [('id', '=', self.memo_record.id)], limit=1)
         if self.memo_record:
+            mof = self.env['ikoyi.request'].search(
+            [('id', '=', self.memo_record.id)], limit=1)
+            po_obj = mof.mapped('purchase_lines')[-1]
             # mof = self.env['ikoyi.request'].browse(self.memo_record)
             if mof.state == "store_manager_one":
                 group_user_id2 = self.env.ref('ikoyi_module.store_keeper_ikoyi').id
@@ -2240,13 +2394,18 @@ class IkoyiRefuse_Message(models.Model):
                 group_user_id2 = self.env.ref('ikoyi_module.procurement_manager_ikoyi').id
                 group_user_id = self.env.ref('ikoyi_module.procurement_officer_ikoyi').id
                 self.send_refusal_mail(group_user_id, group_user_id2) 
-                mof.write({'state': 'procurement_manager_two'})
+                po_obj.write({'state': 'pm'})
+                # mof.write({'state': 'procurement_manager_two'})
+                mof.write({'state': 'done'})
+
                 
             elif mof.state == "general_manager_two":
                 group_user_id2 = self.env.ref('ikoyi_module.admin_management_ikoyi').id
                 group_user_id = self.env.ref('ikoyi_module.procurement_manager_ikoyi').id
                 self.send_refusal_mail(group_user_id, group_user_id2) 
                 mof.write({'state': 'admin_manager_two'})
+
+                # mof.write({'state': 'pm'})
                 
             else:
                 mof.write({'state': 'refused'})
@@ -2498,8 +2657,8 @@ class PickingInherit(models.Model):
         po_obj = self.env['purchase.order'].search(
             [('name', '=', self.origin)])
         search_req = self.env['ikoyi.request'].search(
-            [('purchase_order_id', '=', po_obj.id)])
-        good_return = self.env['ikoyi.goods_return'].search([('stock_id', '=', self.id)], limit=1)
+            [('purchase_order_id', '=', po_obj.id)], limit=1)
+        good_return = self.env['ikoyi.goods_return'].search([('stock_in_id', '=', self.id)], limit=1)
         if good_return:
             if good_return.state == "update":
                 good_return.storer_send_vendor()
@@ -2726,11 +2885,11 @@ class payment_schedule_ikoyi(models.Model):  #  mandate
         self.invoice_ids = [(6,0,[item.id for item in rec.invoice_ids])]
      
     # @api.one
-    @api.onchange('purchase_id')
+    @api.onchange('invoice_ids')
     def change_bill(self):
         total = 0.0
-        if self.purchase_id:
-            total = self.purchase_id.amount_total
+        if self.invoice_ids:
+            total = self.invoice_ids.amount_total
             self.pay_amount = total
     
          
