@@ -346,6 +346,7 @@ class Ikoyi_FIXED_ASSET_Request(models.Model):
         :param context: Context supplies the needed values including: partner_id, warehouse_id, location_id
         :return:
         """
+        partner_id = 0
         purchase_obj = self.env['purchase.order']
         """
         To get the picking type i need to apply a domain where:
@@ -384,8 +385,9 @@ class Ikoyi_FIXED_ASSET_Request(models.Model):
                     picking_type_id2 = self.env['stock.picking.type'].search(
                         [('active', '=', True)])[0]
                     partner_obj = self.env['res.partner']
-                    partner_id = partner_obj.search([('name', '=', '/')]) and partner_obj.search(
-                        [('name', '=', '/')]).id or partner_obj.create({'name': 'Client', 'supplier': True}).id
+                    partner_id = partner_obj.search([('name', '=', 'Default Client')]).id
+                    if partner_id:
+                        partner_id = partner_obj.create({'name': 'Default Client', 'supplier': True}).id
 
                     values = {
 

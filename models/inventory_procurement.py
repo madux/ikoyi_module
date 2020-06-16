@@ -405,6 +405,8 @@ class Ikoyi_Material_Request(models.Model):
                     'date_planned': time.strftime("%m/%d/%Y %H:%M:%S"),
                     'branch_id': self.branch_id.id,
                     'state': 'pm',
+                    
+                    'taxes_id': [(6, 0, [tax.id for tax in self.mapped('order_line').mapped('taxes_id')])],
                     'users_followers': [(6, 0, users)]
                 })
 
@@ -473,7 +475,7 @@ class ConstructionMaterial_Line(models.Model):
         branch = self.order_id.branch_id
         return branch.id
 
-    @api.constrains('used_qty','todo_qty')
+    # @api.constrains('used_qty','todo_qty')
     def check_quantity(self):
         result = self.todo_qty + self.used_qty
         if self.used_qty > self.qty:
@@ -1028,6 +1030,25 @@ class PurchaseOrder(models.Model):
             mail_id = order.env['mail.mail'].create(mail_data)
             order.env['mail.mail'].send(mail_id)
 
+    @api.multi
+    def button_approve(self, force=False):
+        res = super(PurchaseOrder, self).button_approve()
+        self.write({'state': 'purchase'})
+        self._create_picking()
+        ik_req = self.env['ikoyi.request'].search([('purchase_order_id', '=', self.id)], limit=1)
+        if ik_req:
+            req_lines = ik_req.mapped('order_line')
+            for req in req_lines:
+                req.used_qty += req.todo_qty
+        else:
+            pass
+
+        if self.company_id.po_lock == 'lock':
+            self.write({'state': 'done'})
+        
+        return {}
+
+    
     @api.multi
     def button_confirm(self):  #  state:draft, group:procurement manager
         res = super(PurchaseOrder, self).button_confirm()
@@ -1657,9 +1678,14 @@ class Ikoyi_Memo_Request(models.Model):
         
     def button_procurement_creates_LPO(self): # done
         self.check_and_request()
+        self.check_quantity()
         if not self.purchase_order_id:
-            self.procure_btn()
+            self.procure_btn('officer')
             self.reorder = False
+            # if self.mapped('purchase_lines')[0]:
+            #     self.purchase_order_id = self.mapped('purchase_lines')[0].id
+            # else:
+            #     raise ValidationError('No Purchase order found!!')
             resp = {
                 'type': 'ir.actions.act_window',
                 'name': _('Purchase Reference'),
@@ -1699,7 +1725,7 @@ class Ikoyi_Memo_Request(models.Model):
         return resp
 
     @api.multi
-    def procure_btn(self, context=None):
+    def procure_btn(self, states, context=None):
         self.check_and_request()
         purchase_obj = self.env['purchase.order']
         partner_obj = self.env['res.partner']
@@ -1717,6 +1743,7 @@ class Ikoyi_Memo_Request(models.Model):
             'picking_type_id': picking_type_id.id,  
             'date_planned': time.strftime("%m/%d/%Y %H:%M:%S"),
             'branch_id': self.branch_id.id or self.env.user.branch_id.id,
+            'state': states,
         })
         pur_search = purchase_obj.search([('id', '=', purchase.id)])
         purchase_browse = purchase_obj.browse(purchase.id)
@@ -1732,21 +1759,25 @@ class Ikoyi_Memo_Request(models.Model):
                         'product_uom': rec.label.id,
                         #  time.strftime("%m/%d/%Y %H:%M:%S"),
                         'date_planned': rec.date_planned or time.strftime("%m/%d/%Y %H:%M:%S"),
+                        'taxes_id': [(6, 0, [tax.id for tax in self.mapped('order_line').mapped('taxes_id')])],
                         }
                 purchase_browse.write({'order_line': [(0, 0, values)]})
-                if self.state == "procurement_state":
-                    rec.used_qty += rec.todo_qty  
+                # if self.state == "procurement_state":
+                #     rec.used_qty += rec.todo_qty  
             self.write({'state':'cancel'})
             self.purchase_lines = [(4,purchase_browse.id)]
+            self.purchase_order_id = purchase_browse.id
+
             
-            if self.reorder == False:
-                self.purchase_order_id = purchase_browse.id
+            # if self.reorder == False:
+            #     self.purchase_order_id = purchase_browse.id
         else:
             raise ValidationError('Please check if you have not exhausted the approved quantity(s). \n\
-                                   - You might check that the quantity todo is equal to zero. Click reorder button to start again. ')
+                                   - You might also check that the quantity todo is not equal to zero. Click reorder button to start again. ')
+        # return purchase_browse.id
     
     def refresh_order_lines(self):
-        order_line = self.mapped('order_line').filtered(lambda s: s.used_qty < s.qty)
+        order_line = self.mapped('order_line').filtered(lambda s: s.used_qty <= s.qty)
         if order_line:
             for rec in order_line:
                 rec.todo_qty = 0
@@ -1755,24 +1786,57 @@ class Ikoyi_Memo_Request(models.Model):
         else:
             raise ValidationError('All approved products have been used')
     
-    def reorder_button(self):
+    def reorder_button_initial(self):
         self.check_and_request()
         self.state = 'done'
+
+    def check_quantity(self):
+        count = 1
+        lines = self.mapped('order_line').filtered(lambda self:self.todo_qty > 0)
+        for rec in lines:
+            result = rec.todo_qty + rec.used_qty
+            if result > rec.qty:
+                raise ValidationError("Check Line %s: The product: %s have been used... \n\
+                or the Sum of 'Used' and 'Todo Qty' is Greater than the requested Quantity.\n\
+                    To continue, set the todo quantity to 0"%(count, rec.product_id.name))
+            count += 1
+        # if self.state == "done":
+        #     if result > self.qty:
+        #         raise ValidationError('You have exceeded the number of requested Quantity')
+            
+
+    def reorder_button(self): # done
+        self.check_and_request()
+        self.check_quantity()
+        self.procure_btn('to approve')
+        self.reorder = False
+        # if self.purchase_order_id:
+        #     raise ValidationError(self.purchase_order_id.name)
+
+        #     # self.purchase_order_id = self.mapped('purchase_lines')[0].id
+        # else:
+        #     raise ValidationError('No Purchase order found!!')
+        resp = {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Reference'),
+            'res_model': 'purchase.order',
+            'view_type': 'form',
+            'view_mode': 'form', 
+            'target': 'current',
+            'res_id': self.purchase_order_id.id, #self.mapped('purchase_lines')[0].id# self.purchase_order_id.id
+        }
+        return resp
+        # else:
+        #     pass # return self.po_reference()
         
             
     def check_and_request(self):
         order_line = self.mapped('order_line').filtered(lambda s: s.used_qty < s.qty)
         if len(order_line) > 0:
             pass
-            # for rec in order_line:
-            #     # if rec.todo_qty < 1:
-                #     raise ValidationError('Please ensure all the Todo QTY in order lines have \n \
-                #                           quantity above 1.0')
-                # else:
-                # if self.state == "procurement_state":
-                #     rec.used_qty += rec.todo_qty
         else:
-            raise ValidationError('Please Add Requesting Qty order line before requesting')
+            raise ValidationError("Sorry! You must have exhausted your Requested Product Quantities. \n \
+        Kindly make an MOF request")
     
     # def refresh_order_lines(self):
     #     # po_line = self.purchase_order_id.mapped('order_line').filtered(lambda s: s.qty_received > 0)
